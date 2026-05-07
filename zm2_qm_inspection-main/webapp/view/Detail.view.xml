@@ -44,7 +44,7 @@
 											<Button type="Emphasized" icon="sap-icon://locked" press="onCloseOperation" tooltip="{i18n>close}"/>
 										</HBox>
 									</HBox>
-									<List items="{toCharacteristics}">
+									<List items="{path: 'toCharacteristics', templateShareable: false}">
 										<CustomListItem class="sapUiTinyMargin"
 											type="Active" press="onPressCharacteristic"
 											highlight="{Highlight}">
