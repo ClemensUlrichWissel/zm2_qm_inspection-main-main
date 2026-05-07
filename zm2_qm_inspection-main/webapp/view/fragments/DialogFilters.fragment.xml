@@ -10,43 +10,83 @@
     >
         <f:SimpleForm editable="true">
             <f:content>
-			<Label text="{i18n>plant}" />
-                <MultiInput
-                    submit="onSubmitFilter"
-                    tokens="{FilterModel>/plant}"
-                    showValueHelp="false"
-                    tokenUpdate="onTokenUpdate"
-                >
-                    <tokens>
-                        <Token text="{FilterModel>text}" />
-                    </tokens>
-                </MultiInput>
+                <Label text="{i18n>plant}" />
+                <HBox alignItems="Center" width="100%">
+                    <MultiInput
+                        submit="onSubmitFilter"
+                        tokens="{FilterModel>/plant}"
+                        showValueHelp="false"
+                        tokenUpdate="onTokenUpdate"
+                    >
+                        <tokens>
+                            <Token text="{FilterModel>text}" />
+                        </tokens>
+                        <layoutData>
+                            <FlexItemData growFactor="1" />
+                        </layoutData>
+                    </MultiInput>
+                    <Button
+                        icon="{= ${FilterModel>/sort/Werks} === 'asc' ? 'sap-icon://sort-ascending' : ${FilterModel>/sort/Werks} === 'desc' ? 'sap-icon://sort-descending' : 'sap-icon://sort'}"
+                        press="onToggleSort"
+                        tooltip="{i18n>sort}"
+                        class="sapUiTinyMarginBegin">
+                        <customData>
+                            <core:CustomData key="sortField" value="Werks" />
+                        </customData>
+                    </Button>
+                </HBox>
 
-                <Label
-                    text="{i18n>workplace}"
-                />
-                <MultiInput
-                    submit="onSubmitFilter"
-                    tokens="{FilterModel>/workplace}"
-                    showValueHelp="false"
-                    tokenUpdate="onTokenUpdate"
-                >
-                    <tokens>
-                        <Token text="{FilterModel>text}" />
-                    </tokens>
-                </MultiInput>
+                <Label text="{i18n>workplace}" />
+                <HBox alignItems="Center" width="100%">
+                    <MultiInput
+                        submit="onSubmitFilter"
+                        tokens="{FilterModel>/workplace}"
+                        showValueHelp="false"
+                        tokenUpdate="onTokenUpdate"
+                    >
+                        <tokens>
+                            <Token text="{FilterModel>text}" />
+                        </tokens>
+                        <layoutData>
+                            <FlexItemData growFactor="1" />
+                        </layoutData>
+                    </MultiInput>
+                    <Button
+                        icon="{= ${FilterModel>/sort/Workcenter} === 'asc' ? 'sap-icon://sort-ascending' : ${FilterModel>/sort/Workcenter} === 'desc' ? 'sap-icon://sort-descending' : 'sap-icon://sort'}"
+                        press="onToggleSort"
+                        tooltip="{i18n>sort}"
+                        class="sapUiTinyMarginBegin">
+                        <customData>
+                            <core:CustomData key="sortField" value="Workcenter" />
+                        </customData>
+                    </Button>
+                </HBox>
 
                 <Label text="{i18n>material}" />
-                <MultiInput
-                    submit="onSubmitFilter"
-                    tokens="{FilterModel>/material}"
-                    showValueHelp="false"
-                    tokenUpdate="onTokenUpdate"
-                >
-                    <tokens>
-                        <Token text="{FilterModel>text}" />
-                    </tokens>
-                </MultiInput>
+                <HBox alignItems="Center" width="100%">
+                    <MultiInput
+                        submit="onSubmitFilter"
+                        tokens="{FilterModel>/material}"
+                        showValueHelp="false"
+                        tokenUpdate="onTokenUpdate"
+                    >
+                        <tokens>
+                            <Token text="{FilterModel>text}" />
+                        </tokens>
+                        <layoutData>
+                            <FlexItemData growFactor="1" />
+                        </layoutData>
+                    </MultiInput>
+                    <Button
+                        icon="{= ${FilterModel>/sort/Material} === 'asc' ? 'sap-icon://sort-ascending' : ${FilterModel>/sort/Material} === 'desc' ? 'sap-icon://sort-descending' : 'sap-icon://sort'}"
+                        press="onToggleSort"
+                        tooltip="{i18n>sort}"
+                        class="sapUiTinyMarginBegin">
+                        <customData>
+                            <core:CustomData key="sortField" value="Material" />
+                        </customData>
+                    </Button>
+                </HBox>
             </f:content>
         </f:SimpleForm>
     </Panel>
