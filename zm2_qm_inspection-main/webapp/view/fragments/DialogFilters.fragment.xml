@@ -49,13 +49,5 @@
                 </MultiInput>
             </f:content>
         </f:SimpleForm>
-        <!-- <Button
-            text="{i18n>apply}"
-            press="onApplyFilters"
-        />
-        <Button
-            text="{i18n>cancel}"
-            press="onCancelFilters"
-        /> -->
     </Panel>
 </core:FragmentDefinition>
