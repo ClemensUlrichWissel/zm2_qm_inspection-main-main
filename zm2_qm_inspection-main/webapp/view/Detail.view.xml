@@ -121,10 +121,10 @@
 														enabled="{= !${Skipped} &amp;&amp; !${Closed}}" />
 													
 													<!--Button for Accept or Reject-->
-													<!--<Button type="Accept" icon="sap-icon://accept" press="onCloseAccept" tooltip="{i18n>accept}"-->
-													<!--	enabled="{= !${Skipped} &amp;&amp; !${Closed}}" />-->
-													<!--<Button type="Reject" icon="sap-icon://decline" press="onCloseReject" tooltip="{i18n>reject}"-->
-													<!--	enabled="{= !${Skipped} &amp;&amp; !${Closed}}" />-->
+													<Button type="Accept" icon="sap-icon://accept" press="onCloseAccept" tooltip="{i18n>accept}"
+														enabled="{= !${Skipped} &amp;&amp; !${Closed}}" />
+													<Button type="Reject" icon="sap-icon://decline" press="onCloseReject" tooltip="{i18n>reject}"
+														enabled="{= !${Skipped} &amp;&amp; !${Closed}}" />
 												</HBox>
 											</HBox>
 										</CustomListItem>
