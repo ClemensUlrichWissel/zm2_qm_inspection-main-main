@@ -1,0 +1,33 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="de.mindsquare.InspectionQM.controller.Master"
+	xmlns:barcode="sap.ndc" xmlns:html="http://www.w3.org/1999/xhtml">
+	<Page title="{i18n>titleMasterPage}">
+		<content>
+			<core:Fragment fragmentName="de.mindsquare.InspectionQM.view.fragments.DialogFilters" type="XML" />
+			<HBox renderType="Bare">
+				<SearchField id="idSearch" search="onSearch" />
+				<barcode:BarcodeScannerButton scanSuccess="onBarcodeScanSuccess"/>
+			</HBox>
+			<List id="idInspectionLotList" 
+				items="{path: '/InspectionLotSet', parameters: {select: 'CreatedDate,InspectionLotNumber,CreatedBy,Material,MaterialText,Batch,Workcenter,OrderNumber'}}">
+				<items>
+					<ObjectListItem intro="{i18n>InspectionLot}" 
+						title="{InspectionLotNumber}" type="Navigation" press="onSelectionChange">
+						<attributes>
+							<ObjectAttribute title="{i18n>createdBy}" text="{CreatedBy}"/>
+							<ObjectAttribute title="{i18n>material}" text="{Material}"/>
+							<ObjectAttribute text="{MaterialText}"/>
+							<ObjectAttribute title="{i18n>workcenter}" text="{Workcenter}"/>
+							<ObjectAttribute title="{i18n>order}" text="{OrderNumber}"/>
+						</attributes>
+					</ObjectListItem>
+				</items>
+			</List>
+		</content>
+		<footer>
+			<OverflowToolbar>
+				<ToolbarSpacer />
+				<Button icon="sap-icon://settings" text="{i18n>filters}" press="onOpenFilterDialog" /> 
+			</OverflowToolbar>
+		</footer>
+	</Page>
+</mvc:View>

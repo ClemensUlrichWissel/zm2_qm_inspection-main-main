@@ -1,0 +1,172 @@
+<mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="de.mindsquare.InspectionQM.controller.Detail"
+	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:upload="sap.m.upload">
+	<Page title="{i18n>titleDetailPage}">
+		<content>
+			<ObjectHeader title="{InspectionLotNumber}" 
+				intro="{path: 'CreatedDate', type: 'sap.ui.model.type.Date', formatOptions: {style: 'short'}}">
+				<attributes>
+					<ObjectAttribute title="{i18n>createdBy}" text="{CreatedBy}"/>
+					<ObjectAttribute title="{i18n>material}" text="{Material} - {MaterialText}"/>
+					<ObjectAttribute title="{i18n>batch}" text="{Batch}" visible="{=${Batch} !== ''}"/>
+				</attributes>
+			</ObjectHeader>
+			<IconTabBar select="onTabSelect" class="sapUiResponsiveContentPadding">
+				<items>
+					<IconTabFilter icon="sap-icon://clinical-tast-tracker" design="Horizontal">
+						<List id="idMainList" items="{toActions}">
+							<CustomListItem>
+								<VBox class="sapUiSmallMargin">
+									<HBox alignItems="Center">
+										<Title level="H1" 
+											text="{parts: [
+												{path: 'InspLotAction'},
+												{path: 'ActionText'},
+												{path: 'Workcenter'},
+												{path: 'WorkcenterText'},
+												{path: 'ControlKey'},
+												{path: 'Usern1'},
+												{path: 'PhysSmpl'},
+												{path: 'Userd1'},
+												{path: 'Usert1'}
+											], formatter: '.formatOperationTitle'}">
+											<layoutData>
+												<FlexItemData minWidth="50%" growFactor="1"
+													styleClass="sapUiSmallMarginBegin"/>
+											</layoutData>
+										</Title>
+										<HBox width="10%" justifyContent="End" alignItems="Center">
+											<layoutData>
+												<FlexItemData minWidth="10%"
+													styleClass="sapUiTinyMarginEnd"/>
+											</layoutData>
+											
+											<!--Button for closing the operation-->
+											<Button type="Emphasized" icon="sap-icon://locked" press="onCloseOperation" tooltip="{i18n>close}"/>
+										</HBox>
+									</HBox>
+									<List items="{toCharacteristics}">
+										<CustomListItem class="sapUiTinyMargin"
+											type="Active" press="onPressCharacteristic"
+											highlight="{Highlight}">
+											<HBox alignItems="Center">
+												<Text text="{parts: [
+													{path: 'InspCharacteristic'},
+													{path: 'MasterCharact'},
+													{path: 'CharactText'},
+													{path: 'TargetVal'},
+													{path: 'UpTolLmt'},
+													{path: 'LwTolLmt'},
+													{path: 'CharType'},
+													{path: 'UnitText'},
+													{path: 'Scope'}
+												], formatter: '.formatCharacteristicTitle'}">
+													<layoutData>
+														<FlexItemData maxWidth="50%" minWidth="50%" 
+															styleClass="sapUiSmallMarginBegin"/>
+													</layoutData>
+												</Text>
+												<HBox width="50%" justifyContent="End" alignItems="Center">
+													<!-- Sample Size = 1 and Type Qualitative: Yes/No -->
+													<!--<RadioButtonGroup columns="2" select="onRadioSelect"-->
+													<!--	visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"-->
+													<!--	selectedIndex="{= ${Code1} === ${i18n>XOK} ? 0 : ${Code1} === ${i18n>XNOK} ? 1 : -1}" enabled="{= !${Skipped} &amp;&amp; !${Closed}}">-->
+													<!--	<RadioButton text="{i18n>yes}"/>-->
+													<!--	<RadioButton text="{i18n>no}"/>-->
+													<!--</RadioButtonGroup>-->
+													
+													<CheckBox selected="{= ${Code1} === ${i18n>XOK}}" visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
+														enabled="{= !${Skipped} &amp;&amp; !${Closed}}" text="{i18n>yes}" select="onSelectYes"/>
+													<CheckBox selected="{= ${Code1} === ${i18n>XNOK}}" visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
+														enabled="{= !${Skipped} &amp;&amp; !${Closed}}" text="{i18n>no}" select="onSelectNo"/>
+													
+													<!-- Sample Size > 1 and Type Qualitative: Total and Failed Amount -->
+													<Input placeholder="{i18n>placeholderTotal}"
+														visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} !== '01'}"
+														value="{ValidVals}" editable="{= !${Skipped} &amp;&amp; !${Closed}}"/>
+													<Input placeholder="{i18n>placeholderFailed}"
+														visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} !== '01'}"
+														value="{Nonconf}" editable="{= !${Skipped} &amp;&amp; !${Closed}}">
+														<layoutData>
+															<FlexItemData styleClass="sapUiTinyMarginBegin"/>
+														</layoutData>
+													</Input>
+													
+													<!-- Sample Size = 1 and Type Quanitative: Single Result -->
+													<Input placeholder="{i18n>placeholderResult}"
+														visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} === '01'}"
+														value="{ResValue}" editable="{= !${Skipped} &amp;&amp; !${Closed}}"/>
+														
+													<!-- Sample Size > 1 and Type Quanitative: Dialog to enter Sample Results -->
+													<Text text="{i18n>mean-value}: {MeanValue} |" 
+														visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} === '01' &amp;&amp; ${MeanValue} !== ''}" 
+														class="sapUiTinyMarginEnd" />
+													<Text text="{i18n>variance}: {Variance} |" 
+														visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} === '01' &amp;&amp; ${Variance} !== ''}"
+														class="sapUiTinyMarginEnd" />
+													<Button text="{i18n>buttonRecordSampleResults}" 
+														press="onPressSampleResults"
+														type="{= ${Highlight} === 'Error' ? 'Reject' : ${Highlight} === 'Success' ? 'Accept' : 'Default'}"
+														icon="sap-icon://clinical-tast-tracker"
+														enabled="{= !${Skipped} &amp;&amp; !${Closed}}"
+														visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} === '01'}"/>
+														
+													<!-- Comment Button - always visible -->
+													<Button icon="sap-icon://document-text" press="onPressComment"
+														class="sapUiSmallMarginBegin" enabled="{= !${Skipped} &amp;&amp; !${Closed}}"/>
+													
+													<Text text="|" class="sapUiTinyMarginBeginEnd"/>
+													
+													<!--Button for closing the characteristic-->
+													<Button type="Emphasized" icon="sap-icon://locked" press="onClose" tooltip="{i18n>close}"
+														enabled="{= !${Skipped} &amp;&amp; !${Closed}}" />
+													
+													<!--Button for Accept or Reject-->
+													<!--<Button type="Accept" icon="sap-icon://accept" press="onCloseAccept" tooltip="{i18n>accept}"-->
+													<!--	enabled="{= !${Skipped} &amp;&amp; !${Closed}}" />-->
+													<!--<Button type="Reject" icon="sap-icon://decline" press="onCloseReject" tooltip="{i18n>reject}"-->
+													<!--	enabled="{= !${Skipped} &amp;&amp; !${Closed}}" />-->
+												</HBox>
+											</HBox>
+										</CustomListItem>
+									</List>
+								</VBox>
+							</CustomListItem>
+						</List>
+					</IconTabFilter>
+					<IconTabFilter icon="sap-icon://attachment" design="Horizontal">
+						<upload:UploadSet
+							instantUpload="true"
+							showIcons="true"
+							uploadEnabled="true"
+							terminationEnabled="false"
+							uploadUrl="/sap/opu/odata/sap/ZQM_FIORI_INSPECTION_SRV/InspectionLotAttachmentSet"
+							items="{path: 'toAttachments', templateShareable: true}"
+							beforeUploadStarts="onBeforeUploadStarts"
+							uploadCompleted="onUploadCompleted"
+							afterItemRemoved="onAfterItemRemoved">
+							<upload:items>
+								<upload:UploadSetItem
+									fileName="{Filename}"
+									mediaType="{Mimetype}"
+									visibleEdit="false"
+									url="/sap/opu/odata/sap/ZQM_FIORI_INSPECTION_SRV/InspectionLotAttachmentSet(InspectionLot='{InspectionLot}',AttachmentId='{AttachmentId}')/$value"/>
+							</upload:items>
+						</upload:UploadSet>
+					</IconTabFilter>
+				</items>
+			</IconTabBar>
+		</content>
+		<footer>
+			<Bar>
+				<contentMiddle>
+					<Button press="onAddNewSample" icon="sap-icon://add" text="{i18n>createNewSample}"
+						visible="{= ${AllowsNewSample} &amp;&amp; !${HasUsageDecision}}"/>
+				</contentMiddle>
+				<contentRight>
+					<Button press="onUsageDecision" type="Accept" icon="sap-icon://validate" text="{i18n>usageDecision}"
+						visible="{= !${HasUsageDecision}}"/>
+				</contentRight>
+			</Bar>
+		</footer>
+	</Page>
+</mvc:View>

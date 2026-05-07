@@ -1,0 +1,39 @@
+{
+  "name": "zm2_0001_inslot",
+  "version": "0.0.1",
+  "description": "",
+  "devDependencies": {
+    "@ui5/cli": "^3.0.0",
+    "@sap/ux-ui5-tooling": "^1",
+    "ui5-middleware-livereload": "^3.0.3",
+    "ui5-task-nwabap-deployer": "^2"
+  },
+  "scripts": {
+    "build_old": "ui5 build --clean-dest --include-task=generateManifestBundle generateCachebusterInfo",
+    "start": "fiori run --open \"test/flpSandbox.html?sap-ui-xx-viewCache=false#app-tile\"",
+    "start-local": "fiori run --config ./ui5-local.yaml --open \"test/flpSandboxMockServer.html?sap-ui-xx-viewCache=false#app-tile\"",
+    "start-noflp": "fiori run --open \"index.html?sap-ui-xx-viewCache=false\"",
+    "start-variants-management": "fiori run --open \"preview.html?sap-ui-xx-viewCache=false&fiori-tools-rta-mode=true&sap-ui-rta-skip-flex-validation=true#preview-app\"",
+    "build": "ui5 build -a --clean-dest --include-task=generateCachebusterInfo",
+    "deploy": "fiori verify",
+    "deploy-config": "fiori add deploy-config",
+    "start-mock": "fiori run --open \"test/flpSandboxMockServer.html?sap-ui-xx-viewCache=false#app-tile\"",
+    "start-hettich": "ui5 serve -o index.html",
+    "build-hettich": "ui5 build --clean-dest --include-task=generateManifestBundle generateCachebusterInfo ui5-task-nwabap-deployer"
+  },
+  "ui5": {
+    "dependencies": [
+      "@sap/ux-ui5-tooling",
+      "ui5-middleware-livereload",
+      "ui5-task-nwabap-deployer"
+    ]
+  },
+  "private": true,
+  "sapuxLayer": "CUSTOMER_BASE",
+  "keywords": [
+    "ui5",
+    "openui5",
+    "sapui5"
+  ],
+  "main": "webapp/index.html"
+}
