@@ -19,11 +19,25 @@ sap.ui.define([
 				workplace: [],
 				material: [],
 				sort: {
-					Werks: "",
+					Werks: "asc",
 					Workcenter: "",
 					Material: ""
 				}
 			}), "FilterModel");
+
+			this._bInitialSortApplied = false;
+		},
+
+		onBeforeRendering: function () {
+			//Apply initial sort exactly once - the list binding only exists after the view is rendered
+			if (this._bInitialSortApplied) {
+				return;
+			}
+			const oBinding = this.getView().byId("idInspectionLotList").getBinding("items");
+			if (oBinding) {
+				this._applySorters();
+				this._bInitialSortApplied = true;
+			}
 		},
 
 		onToggleSort: function (oEvent) {
