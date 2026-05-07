@@ -2,11 +2,15 @@
 	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:upload="sap.m.upload">
 	<Page title="{i18n>titleDetailPage}">
 		<content>
-			<ObjectHeader title="{InspectionLotNumber}" 
-				intro="{path: 'CreatedDate', type: 'sap.ui.model.type.Date', formatOptions: {style: 'short'}}">
+			<ObjectHeader
+				intro="{i18n>inspectionLotNumber}"
+				title="{InspectionLotNumber}">
 				<attributes>
+					<ObjectAttribute title="{i18n>order}" text="{OrderNumber}"/>
 					<ObjectAttribute title="{i18n>createdBy}" text="{CreatedBy}"/>
-					<ObjectAttribute title="{i18n>material}" text="{Material} - {MaterialText}"/>
+					<ObjectAttribute title="{i18n>material}" text="{Material}"/>
+					<ObjectAttribute title="{i18n>materialText}" text="{MaterialText}"/>
+					<ObjectAttribute title="{i18n>workcenter}" text="{Workcenter}"/>
 					<ObjectAttribute title="{i18n>batch}" text="{Batch}" visible="{=${Batch} !== ''}"/>
 				</attributes>
 			</ObjectHeader>
