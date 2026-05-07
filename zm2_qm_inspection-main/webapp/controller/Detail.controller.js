@@ -44,9 +44,7 @@ sap.ui.define([
 				});
 				oView.bindElement(sPath);
 				//TS, 10.06.2022, Refresh element binding to update flags like HasUsageDecision when re-opening lots
-				//Force server roundtrip (true) so fields like CreatedBy reflect the latest backend response
-				//instead of cached values that were loaded with the master list
-				oView.getElementBinding().refresh(true);
+				oView.getElementBinding().refresh();
 			});
 		},
 
