@@ -64,7 +64,7 @@
 									</HBox>
 									<List items="{path: 'toCharacteristics', templateShareable: false}">
 										<CustomListItem class="sapUiTinyMargin"
-											type="Active" press="onPressCharacteristic"
+											type="Inactive"
 											highlight="{Highlight}">
 											<HBox alignItems="Center">
 												<Text text="{parts: [
@@ -131,6 +131,10 @@
 													<!-- Comment Button - always visible -->
 													<Button icon="sap-icon://document-text" press="onPressComment"
 														class="sapUiSmallMarginBegin" enabled="{= !${Skipped} &amp;&amp; !${Closed}}"/>
+
+													<!-- Info Button - shows the characteristic longtext -->
+													<Button icon="sap-icon://hint" press="onPressCharacteristic"
+														class="sapUiTinyMarginBegin" tooltip="{i18n>longtext}"/>
 													
 													<Text text="|" class="sapUiTinyMarginBeginEnd"/>
 													
