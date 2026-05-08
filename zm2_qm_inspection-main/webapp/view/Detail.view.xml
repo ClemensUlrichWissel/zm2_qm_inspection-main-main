@@ -2,18 +2,32 @@
 	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:upload="sap.m.upload">
 	<Page title="{i18n>titleDetailPage}">
 		<content>
-			<ObjectHeader
-				intro="{i18n>InspectionLot}"
-				title="{InspectionLotNumber}">
-				<attributes>
-					<ObjectAttribute title="{i18n>order}" text="{OrderNumber}"/>
-					<ObjectAttribute title="{i18n>createdBy}" text="{CreatedBy}"/>
-					<ObjectAttribute title="{i18n>material}" text="{Material}"/>
-					<ObjectAttribute title="{i18n>materialText}" text="{MaterialText}"/>
-					<ObjectAttribute title="{i18n>workcenter}" text="{Workcenter}"/>
-					<ObjectAttribute title="{i18n>batch}" text="{Batch}" visible="{=${Batch} !== ''}"/>
-				</attributes>
-			</ObjectHeader>
+			<HBox alignItems="Start" justifyContent="SpaceBetween" width="100%" wrap="Wrap">
+				<ObjectHeader
+					intro="{i18n>InspectionLot}"
+					title="{InspectionLotNumber}">
+					<attributes>
+						<ObjectAttribute title="{i18n>order}" text="{OrderNumber}"/>
+						<ObjectAttribute title="{i18n>createdBy}" text="{CreatedBy}"/>
+						<ObjectAttribute title="{i18n>material}" text="{Material}"/>
+						<ObjectAttribute title="{i18n>materialText}" text="{MaterialText}"/>
+						<ObjectAttribute title="{i18n>workcenter}" text="{Workcenter}"/>
+						<ObjectAttribute title="{i18n>batch}" text="{Batch}" visible="{=${Batch} !== ''}"/>
+					</attributes>
+				</ObjectHeader>
+				<VBox class="sapUiMediumMargin" justifyContent="Center" alignItems="End">
+					<Label text="{i18n>inspectionType}" required="true" labelFor="idInspectionType" class="sapUiTinyMarginBottom"/>
+					<Select id="idInspectionType"
+						selectedKey="{Usern2}"
+						forceSelection="false"
+						width="220px"
+						valueState="{= ${Usern2} === '' || ${Usern2} === '000' ? 'Error' : 'None'}"
+						valueStateText="{i18n>inspectionTypeRequired}"
+						items="{path: '/InspectionTypeSet', templateShareable: false}">
+						<core:Item key="{Code}" text="{Description}"/>
+					</Select>
+				</VBox>
+			</HBox>
 			<IconTabBar select="onTabSelect" class="sapUiResponsiveContentPadding">
 				<items>
 					<IconTabFilter icon="sap-icon://clinical-tast-tracker" design="Horizontal">
