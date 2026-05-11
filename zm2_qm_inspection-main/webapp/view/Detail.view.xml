@@ -85,12 +85,12 @@
 												</Text>
 												<HBox width="50%" justifyContent="End" alignItems="Center">
 													<!-- Sample Size = 1 and Type Qualitative: Yes/No -->
-													<!--<RadioButtonGroup columns="2" select="onRadioSelect"-->
-													<!--	visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"-->
-													<!--	selectedIndex="{= ${Code1} === ${i18n>XOK} ? 0 : ${Code1} === ${i18n>XNOK} ? 1 : -1}" enabled="{= !${Skipped} &amp;&amp; !${Closed}}">-->
-													<!--	<RadioButton text="{i18n>yes}"/>-->
-													<!--	<RadioButton text="{i18n>no}"/>-->
-													<!--</RadioButtonGroup>-->
+													<!-- <RadioButtonGroup columns="2" select="onRadioSelect"
+														visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
+														selectedIndex="{= ${Code1} === ${i18n>XOK} ? 0 : ${Code1} === ${i18n>XNOK} ? 1 : -1}" enabled="{= !${Skipped} &amp;&amp; !${Closed}}">
+														<RadioButton text="{i18n>yes}"/>
+														<RadioButton text="{i18n>no}"/>
+													</RadioButtonGroup> -->
 													
 													<CheckBox selected="{= ${Code1} === ${i18n>XOK}}" visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
 														enabled="{= !${Skipped} &amp;&amp; !${Closed}}" text="{i18n>yes}" select="onSelectYes"/>
@@ -139,8 +139,8 @@
 													<Text text="|" class="sapUiTinyMarginBeginEnd"/>
 													
 													<!--Button for closing the characteristic-->
-													<Button type="Emphasized" icon="sap-icon://locked" press="onClose" tooltip="{i18n>close}"
-														enabled="{= !${Skipped} &amp;&amp; !${Closed}}" />
+													<!-- <Button type="Emphasized" icon="sap-icon://locked" press="onClose" tooltip="{i18n>close}"
+														enabled="{= !${Skipped} &amp;&amp; !${Closed}}" /> -->
 													
 													<!--Button for Accept or Reject-->
 													<Button type="Accept" icon="sap-icon://accept" press="onCloseAccept" tooltip="{i18n>accept}"
