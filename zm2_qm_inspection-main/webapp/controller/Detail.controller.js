@@ -187,6 +187,65 @@ sap.ui.define([
 			});
 		},
 
+		onAddNewInspPoint: function () {
+			const oCtx = this.getView().getBindingContext();
+
+			Fragment.load({
+				name: "de.mindsquare.InspectionQM.view.fragments.DialogNewInspPoint",
+				controller: this
+			}).then((oDialog) => {
+				this.getView().addDependent(oDialog);
+				oDialog.setBindingContext(oCtx);
+				oDialog.open();
+			});
+		},
+
+		onPressDialogNewInspPointClose: function (oEvent) {
+			oEvent.getSource().getParent().close();
+		},
+
+		onPressDialogNewInspPointConfirm: function (oEvent) {
+			const oDialog = oEvent.getSource().getParent();
+			const aFormContent = oDialog.getContent()[0].getContent();
+			// SimpleForm rendering order: [0] Label, [1] Operation-Select
+			const sOperation = aFormContent[1].getSelectedKey();
+			const oModel = this.getView().getModel();
+			const oCtx = this.getView().getBindingContext();
+			// Usern2 (Prüfart) wird aus dem Lot-Header übernommen
+			const sUsern2 = oCtx.getObject().Usern2;
+
+			if (!sOperation) {
+				MessageToast.show(this.getI18nText("selectOperationForNewInspPoint"));
+				return;
+			}
+			if (!sUsern2) {
+				MessageToast.show(this.getI18nText("inspectionTypeRequired"));
+				return;
+			}
+
+			oDialog.setBusyIndicatorDelay(0);
+			oDialog.setBusy(true);
+
+			oModel.callFunction("/CreateInspPoint", {
+				refreshAfterChange: true,
+				method: "POST",
+				urlParameters: {
+					InspectionLot: oCtx.getObject().InspectionLotNumber,
+					InspLotAction: sOperation,
+					Usern2: sUsern2
+				},
+				success: () => {
+					oDialog.setBusy(false);
+					oDialog.close();
+					MessageToast.show(this.getI18nText("inspPointCreated"));
+				},
+				error: () => {
+					oDialog.setBusy(false);
+					//Detailed error message comes via the central ErrorHandling.js
+				}
+			});
+		},
+
 		onUsageDecision: function () {
 			const oCtx = this.getView().getBindingContext();
 			const oModel = new JSONModel();

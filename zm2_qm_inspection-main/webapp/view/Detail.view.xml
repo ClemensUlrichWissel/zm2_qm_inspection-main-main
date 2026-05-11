@@ -181,7 +181,9 @@
 		<footer>
 			<Bar>
 				<contentMiddle>
-					<Button press="onAddNewSample" icon="sap-icon://add" text="{i18n>createNewSample}"
+					<!--<Button press="onAddNewSample" icon="sap-icon://add" text="{i18n>createNewSample}"
+						visible="{= ${AllowsNewSample} &amp;&amp; !${HasUsageDecision}}"/>-->
+					<Button press="onAddNewInspPoint" icon="sap-icon://add" text="{i18n>createNewInspPoint}"
 						visible="{= ${AllowsNewSample} &amp;&amp; !${HasUsageDecision}}"/>
 				</contentMiddle>
 				<contentRight>
