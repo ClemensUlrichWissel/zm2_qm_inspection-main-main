@@ -21,8 +21,6 @@
 						selectedKey="{Usern2}"
 						forceSelection="false"
 						width="220px"
-						valueState="{= ${Usern2} === '' || ${Usern2} === '000' ? 'Error' : 'None'}"
-						valueStateText="{i18n>inspectionTypeRequired}"
 						items="{path: '/InspectionTypeSet', templateShareable: false}">
 						<core:Item key="{Code}" text="{Description}"/>
 					</Select>
