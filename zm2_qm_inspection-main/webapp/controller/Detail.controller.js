@@ -459,6 +459,66 @@ sap.ui.define([
 		},
 
 		/**
+		 * Parses a number string that may use either '.' or ',' as decimal separator.
+		 * @private
+		 */
+		_parseNumber: function (sNum) {
+			if (sNum === null || sNum === undefined || sNum === "") {
+				return NaN;
+			}
+			return parseFloat(String(sNum).replace(",", "."));
+		},
+
+		/**
+		 * Returns true if the value is outside the [lower, upper] range.
+		 * Only triggers when BOTH limits are present (user requirement).
+		 * @private
+		 */
+		_isOutsideTolerance: function (sValue, sLowerLimit, sUpperLimit) {
+			if (!sValue || !sLowerLimit || !sUpperLimit) {
+				return false;
+			}
+			const fValue = this._parseNumber(sValue);
+			const fLower = this._parseNumber(sLowerLimit);
+			const fUpper = this._parseNumber(sUpperLimit);
+			if (isNaN(fValue) || isNaN(fLower) || isNaN(fUpper)) {
+				return false;
+			}
+			return fValue < fLower || fValue > fUpper;
+		},
+
+		/**
+		 * ValueState formatter for the quantitative single-result input in the characteristic row.
+		 * Returns 'Error' when value is outside tolerance, 'None' otherwise.
+		 */
+		formatValueState: function (sValue, sLowerLimit, sUpperLimit) {
+			return this._isOutsideTolerance(sValue, sLowerLimit, sUpperLimit) ? "Error" : "None";
+		},
+
+		/**
+		 * ValueState formatter for the single-result inputs in DialogSingleResults.
+		 * The tolerance limits live on the parent characteristic entity - looked up via OData cache.
+		 */
+		formatSingleResultValueState: function (sValue, sInspChar, sInspLot, sInspLotAction, sInspSample) {
+			if (!sValue || !sInspChar) {
+				return "None";
+			}
+			const oModel = this.getView().getModel();
+			if (!oModel) {
+				return "None";
+			}
+			const sCharPath = "/" + oModel.createKey("InspectionLotCharacteristicSet", {
+				InspCharacteristic: sInspChar,
+				InspectionLot: sInspLot,
+				InspLotAction: sInspLotAction,
+				InspSample: sInspSample
+			});
+			const sLowerLimit = oModel.getProperty(sCharPath + "/LwTolLmt");
+			const sUpperLimit = oModel.getProperty(sCharPath + "/UpTolLmt");
+			return this._isOutsideTolerance(sValue, sLowerLimit, sUpperLimit) ? "Error" : "None";
+		},
+
+		/**
 		 * Determines whether a characteristic row is editable.
 		 * Only QM92 operations are editable. For other QMxx the controls are visible but disabled.
 		 * The parent operation's ControlKey is looked up via the OData cache.

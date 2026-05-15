@@ -6,7 +6,14 @@
 					<HBox alignItems="Center" class="sapUiTinyMarginBeginEnd" justifyContent="SpaceBetween">
 						<Label text="{ResultNumber}" />
 						<Input placeholder="{i18n>placeholderResult}"
-							value="{ResValue}"/>
+							value="{ResValue}"
+							valueState="{parts: [
+								{path: 'ResValue'},
+								{path: 'InspCharacteristic'},
+								{path: 'InspectionLot'},
+								{path: 'InspLotAction'},
+								{path: 'InspSample'}
+							], formatter: '.formatSingleResultValueState'}"/>
 					</HBox>
 				</CustomListItem>
 			</List>
