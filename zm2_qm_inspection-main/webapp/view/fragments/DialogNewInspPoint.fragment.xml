@@ -3,7 +3,7 @@
 		<content>
 			<form:SimpleForm layout="ResponsiveGridLayout" editable="true">
 				<Label text="{i18n>selectOperationForNewInspPoint}" required="true"/>
-				<Select items="{toOperationsWithInspPoints}" forceSelection="true">
+				<Select items="{path: 'toOperationsWithInspPoints', filters: [{path: 'ControlKey', operator: 'EQ', value1: 'QM92'}]}" forceSelection="true">
 					<items>
 						<core:Item key="{InspLotAction}" text="{InspLotAction} {ActionText}"/>
 					</items>
