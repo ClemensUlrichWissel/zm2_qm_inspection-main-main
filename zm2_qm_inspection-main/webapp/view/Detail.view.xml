@@ -69,10 +69,10 @@
 					<Button press="onAddNewInspPoint" icon="sap-icon://add" text="{i18n>createNewInspPoint}"
 						visible="{= ${AllowsNewSample} &amp;&amp; !${HasUsageDecision}}"/>
 				</contentMiddle>
-				<contentRight>
+				<!-- <contentRight>
 					<Button press="onUsageDecision" type="Accept" icon="sap-icon://validate" text="{i18n>usageDecision}"
 						visible="{= !${HasUsageDecision}}"/>
-				</contentRight>
+				</contentRight> -->
 			</Bar>
 		</footer>
 	</Page>

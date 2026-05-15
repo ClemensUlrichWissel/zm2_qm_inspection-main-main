@@ -23,11 +23,11 @@
 				</items>
 			</List>
 		</content>
-		<footer>
+		<!-- <footer>
 			<OverflowToolbar>
 				<ToolbarSpacer />
 				<Button icon="sap-icon://settings" text="{i18n>filters}" press="onOpenFilterDialog" /> 
 			</OverflowToolbar>
-		</footer>
+		</footer> -->
 	</Page>
 </mvc:View>
