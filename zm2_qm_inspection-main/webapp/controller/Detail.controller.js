@@ -458,6 +458,31 @@ sap.ui.define([
 			return sTitle;
 		},
 
+		/**
+		 * Determines whether a characteristic row is editable.
+		 * Only QM92 operations are editable. For other QMxx the controls are visible but disabled.
+		 * The parent operation's ControlKey is looked up via the OData cache.
+		 */
+		isCharEditable: function (bSkipped, bClosed, sLotAction, sInspectionLot, sInspSample) {
+			if (bSkipped || bClosed) {
+				return false;
+			}
+
+			const oModel = this.getView().getModel();
+			if (!oModel || !sLotAction || !sInspectionLot) {
+				return false;
+			}
+
+			const sActionPath = "/" + oModel.createKey("InspectionLotActionSet", {
+				InspectionLot: sInspectionLot,
+				InspLotAction: sLotAction,
+				InspSample: sInspSample
+			});
+
+			const sControlKey = oModel.getProperty(sActionPath + "/ControlKey");
+			return sControlKey === "QM92";
+		},
+
 		formatCharacteristicTitle: function (sCharateristic, sMasterCharacteristic, sCharacteristicText,
 			sTargetValue, sUpperLimit, sLowerLimit, sChararcteristicType, sUnitText, sScope) {
 			let sTitle = sCharateristic;
