@@ -4,11 +4,13 @@ sap.ui.define([
 	"sap/ui/core/Item",
 	"sap/ui/core/format/DateFormat",
 	"sap/ui/model/json/JSONModel",
+	"sap/ui/model/Filter",
+	"sap/ui/model/FilterOperator",
 	"sap/m/MessageBox",
 	"sap/m/MessageToast",
 	"sap/m/Popover",
 	"sap/m/TextArea"
-], function (BaseController, Fragment, Item, DateFormat, JSONModel, MessageBox, MessageToast, Popover, TextArea) {
+], function (BaseController, Fragment, Item, DateFormat, JSONModel, Filter, FilterOperator, MessageBox, MessageToast, Popover, TextArea) {
 	"use strict";
 
 	return BaseController.extend("de.mindsquare.InspectionQM.controller.Detail", {
@@ -76,12 +78,93 @@ sap.ui.define([
 			const oCtx = oEvent.getSource().getBindingContext();
 			const oResBundle = this.getView().getModel("i18n").getResourceBundle();
 			const sXOK = oResBundle.getText("XOK");
-			const sXNOK = oResBundle.getText("XNOK");
 			const sCurrent = oCtx.getObject().Code1;
 
-			//Toggle: deselect if already NO, otherwise set to NO
-			const sValue = sCurrent === sXNOK ? "" : sXNOK;
-			this._setEvaluationCode(oCtx, sValue);
+			//"Currently No" = Code1 ist gesetzt und nicht der OK-Code
+			const bCurrentlyNo = !!sCurrent && sCurrent !== sXOK;
+
+			if (bCurrentlyNo) {
+				//Toggle off -> Code1 leeren (kein Speichern eines spezifischen Codes mehr)
+				this._setEvaluationCode(oCtx, "");
+			} else {
+				//Fehlerart-Dialog öffnen; Code1 wird erst nach Auswahl auf der Charakteristik gesetzt
+				this._openDefectCodeDialog(oCtx.getPath(), oCtx);
+			}
+		},
+
+		/**
+		 * Öffnet den Fehlerart-Dialog.
+		 * @param {string} sCharPath Pfad zur Eltern-Charakteristik (für die toDefectCodes-Navigation)
+		 * @param {sap.ui.model.Context} oTargetCtx Kontext, auf dem Code1 nach Auswahl gespeichert wird
+		 */
+		_openDefectCodeDialog: function (sCharPath, oTargetCtx) {
+			Fragment.load({
+				name: "de.mindsquare.InspectionQM.view.fragments.DialogDefectCode",
+				controller: this
+			}).then((oDialog) => {
+				//Dialog an die Charakteristik binden -> ComboBox-Items lösen toDefectCodes korrekt auf
+				oDialog.bindElement(sCharPath);
+				//Speicher-Ziel separat merken (kann eine single_result-Zeile sein)
+				oDialog._oTargetCtx = oTargetCtx;
+				this.getView().addDependent(oDialog);
+				oDialog.open();
+			});
+		},
+
+		/**
+		 * Baut den Charakteristik-Pfad aus den Keys einer Charakteristik- oder single_result-Context-Zeile.
+		 */
+		_getCharacteristicPath: function (oCtx) {
+			const oModel = this.getView().getModel();
+			return "/" + oModel.createKey("InspectionLotCharacteristicSet", {
+				InspCharacteristic: oCtx.getProperty("InspCharacteristic"),
+				InspectionLot:      oCtx.getProperty("InspectionLot"),
+				InspLotAction:      oCtx.getProperty("InspLotAction"),
+				InspSample:         oCtx.getProperty("InspSample")
+			});
+		},
+
+		onDefectCodeSearch: function (oEvent) {
+			const sQuery = oEvent.getParameter("value") || oEvent.getParameter("newValue") || "";
+			const oBinding = oEvent.getSource().getBinding("items");
+			if (!oBinding) {
+				return;
+			}
+			if (sQuery) {
+				const aFilters = [
+					new Filter("Code", FilterOperator.Contains, sQuery),
+					new Filter("Description", FilterOperator.Contains, sQuery),
+					new Filter("CodeGroup", FilterOperator.Contains, sQuery)
+				];
+				oBinding.filter(new Filter({ filters: aFilters, and: false }));
+			} else {
+				oBinding.filter([]);
+			}
+		},
+
+		onDefectCodeConfirm: function (oEvent) {
+			const oDialog = oEvent.getSource().getParent();
+			const oComboBox = oDialog.getContent()[0].getItems()[1];
+			const sCode = oComboBox.getSelectedKey();
+
+			if (!sCode) {
+				MessageToast.show(this.getI18nText("defectCodeRequired"));
+				return;
+			}
+
+			//Ziel-Context wurde beim Öffnen explizit gemerkt (kann Char- oder single_result-Zeile sein)
+			const oTargetCtx = oDialog._oTargetCtx;
+			if (!oTargetCtx) {
+				oDialog.destroy();
+				return;
+			}
+
+			this._setEvaluationCode(oTargetCtx, sCode);
+			oDialog.destroy();
+		},
+
+		onDefectCodeCancel: function (oEvent) {
+			oEvent.getSource().getParent().destroy();
 		},
 
 		onPressCharacteristic: function (oEvent) {
@@ -111,14 +194,41 @@ sap.ui.define([
 				name: "de.mindsquare.InspectionQM.view.fragments.DialogSingleResults",
 				controller: this
 			}).then((oDialog) => {
-				this.getView().addDependent(oDialog);
 				oDialog.setBindingContext(oCtx);
+				this.getView().addDependent(oDialog);
 				oDialog.open();
 			});
 		},
 
 		onCloseSingleResults: function (oEvent) {
 			oEvent.getSource().getParent().close();
+		},
+
+		onSelectYesSingleResult: function (oEvent) {
+			const oCtx = oEvent.getSource().getBindingContext();
+			const sXOK = this.getView().getModel("i18n").getResourceBundle().getText("XOK");
+			const sCurrent = oCtx.getObject().Code1;
+
+			//Toggle: deselect wenn bereits Yes, sonst auf Yes setzen
+			const sValue = sCurrent === sXOK ? "" : sXOK;
+			this._setEvaluationCode(oCtx, sValue);
+		},
+
+		onSelectNoSingleResult: function (oEvent) {
+			const oCtx = oEvent.getSource().getBindingContext();
+			const sXOK = this.getView().getModel("i18n").getResourceBundle().getText("XOK");
+			const sCurrent = oCtx.getObject().Code1;
+
+			const bCurrentlyNo = !!sCurrent && sCurrent !== sXOK;
+
+			if (bCurrentlyNo) {
+				//Toggle off
+				this._setEvaluationCode(oCtx, "");
+			} else {
+				//Codes hängen an der Charakteristik (toDefectCodes), gespeichert wird aber auf der single_result-Zeile
+				const sCharPath = this._getCharacteristicPath(oCtx);
+				this._openDefectCodeDialog(sCharPath, oCtx);
+			}
 		},
 
 		onPressComment: function (oEvent) {
@@ -347,16 +457,12 @@ sap.ui.define([
 
 		onCloseOperation: function (oEvent) {
 			//Close all characteristics at once
-			//Don't send a characteristic ID to the backend - the backend then closes all characteristics for the operation
-			//Navigation: Button (Source) --> Inner HBox (Parent 1) --> Outer HBox (Parent 2) --> VBox (Parent 3) --> List (Item with Index 1 in VBox)
-			const oList = oEvent.getSource().getParent().getParent().getParent().getItems()[1];
-			const aItems = oList.getItems();
-
-			if (aItems.length === 0) {
+			//Don't send a characteristic ID - the backend closes all characteristics for the operation
+			//Action binding context already has InspectionLot, InspLotAction, InspSample - no DOM traversal needed
+			const oCtx = oEvent.getSource().getBindingContext();
+			if (!oCtx) {
 				return;
 			}
-
-			const oCtx = aItems[0].getBindingContext();
 			this.callCloseChar(" ", oCtx, false);
 		},
 

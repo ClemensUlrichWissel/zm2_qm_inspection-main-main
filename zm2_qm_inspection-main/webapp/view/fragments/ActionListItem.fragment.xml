@@ -46,17 +46,18 @@
 								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
 								enabled="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"
 								text="{i18n>yes}" select="onSelectYes"/>
-							<CheckBox selected="{= ${Code1} === ${i18n>XNOK}}"
+							<CheckBox selected="{= !!${Code1} &amp;&amp; ${Code1} !== ${i18n>XOK}}"
 								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
 								enabled="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"
 								text="{i18n>no}" select="onSelectNo"/>
 
+							<!-- Aggregat-Inputs nur für qualitative Scope>1 OHNE single_res (also sample_res/char_res) -->
 							<Input placeholder="{i18n>placeholderTotal}"
-								visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} !== '01'}"
+								visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} !== '01' &amp;&amp; !${SingleRes}}"
 								value="{ValidVals}"
 								editable="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"/>
 							<Input placeholder="{i18n>placeholderFailed}"
-								visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} !== '01'}"
+								visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} !== '01' &amp;&amp; !${SingleRes}}"
 								value="{Nonconf}"
 								editable="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}">
 								<layoutData>
@@ -76,12 +77,13 @@
 							<Text text="{i18n>variance}: {Variance} |"
 								visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} === '01' &amp;&amp; ${Variance} !== ''}"
 								class="sapUiTinyMarginEnd" />
+							<!-- Ergebnis-Dialog für: quantitativ Scope>1 ODER qualitativ Scope>1 mit single_res -->
 							<Button text="{i18n>buttonRecordSampleResults}"
 								press="onPressSampleResults"
 								type="{= ${Highlight} === 'Error' ? 'Reject' : ${Highlight} === 'Success' ? 'Accept' : 'Default'}"
 								icon="sap-icon://clinical-tast-tracker"
 								enabled="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"
-								visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} === '01'}"/>
+								visible="{= ${Scope} > '0000001' &amp;&amp; ( ${CharType} === '01' || ${SingleRes} )}"/>
 
 							<Button icon="sap-icon://document-text" press="onPressComment"
 								class="sapUiSmallMarginBegin"

@@ -1,0 +1,22 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog title="{i18n>defectCodeDialogTitle}" contentWidth="420px">
+		<content>
+			<VBox class="sapUiMediumMargin">
+				<Label text="{i18n>defectCodePlaceholder}" class="sapUiTinyMarginBottom"/>
+				<ComboBox
+					id="idDefectCodeComboBox"
+					placeholder="{i18n>defectCodePlaceholder}"
+					items="{toDefectCodes}"
+					showSecondaryValues="true"
+					width="100%"
+					filterSecondaryValues="true">
+					<core:ListItem key="{Code}" text="{Code} - {Description}" additionalText="{CodeGroup}"/>
+				</ComboBox>
+			</VBox>
+		</content>
+		<buttons>
+			<Button text="{i18n>accept}" type="Emphasized" press="onDefectCodeConfirm"/>
+			<Button text="{i18n>cancel}" press="onDefectCodeCancel"/>
+		</buttons>
+	</Dialog>
+</core:FragmentDefinition>

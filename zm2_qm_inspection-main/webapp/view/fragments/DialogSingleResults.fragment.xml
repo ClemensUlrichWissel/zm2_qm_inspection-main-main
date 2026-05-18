@@ -1,10 +1,11 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
 	<Dialog title="{i18n>enter-result}">
 		<content>
-			<List items="{toResults}">
+			<!-- Quantitative Einzelwerterfassung -->
+			<List items="{toResults}" visible="{= ${CharType} === '01'}">
 				<CustomListItem>
 					<HBox alignItems="Center" class="sapUiTinyMarginBeginEnd" justifyContent="SpaceBetween">
-						<Label text="{ResultNumber}" />
+						<Label text="{ResultNumber}"/>
 						<Input placeholder="{i18n>placeholderResult}"
 							value="{ResValue}"
 							valueState="{parts: [
@@ -17,9 +18,27 @@
 					</HBox>
 				</CustomListItem>
 			</List>
+
+			<!-- Qualitative Einzelwerterfassung -->
+			<List items="{toResults}" visible="{= ${CharType} !== '01'}">
+				<CustomListItem>
+					<HBox alignItems="Center" class="sapUiTinyMarginBeginEnd" justifyContent="SpaceBetween">
+						<Label text="{ResultNumber}"/>
+						<HBox alignItems="Center">
+							<CheckBox selected="{= ${Code1} === ${i18n>XOK}}"
+								text="{i18n>yes}"
+								select="onSelectYesSingleResult"/>
+							<CheckBox selected="{= !!${Code1} &amp;&amp; ${Code1} !== ${i18n>XOK}}"
+								text="{i18n>no}"
+								select="onSelectNoSingleResult"
+								class="sapUiTinyMarginBegin"/>
+						</HBox>
+					</HBox>
+				</CustomListItem>
+			</List>
 		</content>
 		<buttons>
-			<Button type="Emphasized" text="{i18n>close}" press="onCloseSingleResults" />
+			<Button type="Emphasized" text="{i18n>close}" press="onCloseSingleResults"/>
 		</buttons>
 	</Dialog>
 </core:FragmentDefinition>
