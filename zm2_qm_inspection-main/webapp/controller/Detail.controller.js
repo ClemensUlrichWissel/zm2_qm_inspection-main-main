@@ -684,28 +684,46 @@ sap.ui.define([
 
 			if (sChararcteristicType === "01") {
 				//Quantitative characteristic - add target value and limits
+				let sDetails = "";
+
 				if (sTargetValue) {
-					sTitle = sTitle + " (" + this.getI18nText("target") + ": " + sTargetValue;
+					sDetails = this.getI18nText("target") + ": " + sTargetValue;
 
 					if (sUnitText) {
-						sTitle = sTitle + " " + sUnitText;
+						sDetails = sDetails + " " + sUnitText;
 					}
 
 					if (sLowerLimit && sUpperLimit) {
-						sTitle = sTitle + ", " + this.getI18nText("tolerance") + ": " +
+						sDetails = sDetails + ", " + this.getI18nText("tolerance") + ": " +
 							sLowerLimit + " - " + sUpperLimit;
+					} else if (sLowerLimit) {
+						sDetails = sDetails + ", " + this.getI18nText("lowerLimit") + ": " + sLowerLimit;
+					} else if (sUpperLimit) {
+						sDetails = sDetails + ", " + this.getI18nText("upperLimit") + ": " + sUpperLimit;
 					}
-
-					sTitle = sTitle + ")";
 				} else if (sLowerLimit && sUpperLimit) {
-					sTitle = sTitle + " (" + this.getI18nText("tolerance") + ": " +
+					sDetails = this.getI18nText("tolerance") + ": " +
 						sLowerLimit + " - " + sUpperLimit;
 
 					if (sUnitText) {
-						sTitle = sTitle + " " + sUnitText;
+						sDetails = sDetails + " " + sUnitText;
 					}
+				} else if (sLowerLimit) {
+					sDetails = this.getI18nText("lowerLimit") + ": " + sLowerLimit;
 
-					sTitle = sTitle + ")";
+					if (sUnitText) {
+						sDetails = sDetails + " " + sUnitText;
+					}
+				} else if (sUpperLimit) {
+					sDetails = this.getI18nText("upperLimit") + ": " + sUpperLimit;
+
+					if (sUnitText) {
+						sDetails = sDetails + " " + sUnitText;
+					}
+				}
+
+				if (sDetails) {
+					sTitle = sTitle + " (" + sDetails + ")";
 				}
 			}
 

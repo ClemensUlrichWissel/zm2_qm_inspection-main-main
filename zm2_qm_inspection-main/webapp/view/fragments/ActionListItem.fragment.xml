@@ -92,12 +92,17 @@
 							<Button icon="sap-icon://hint" press="onPressCharacteristic"
 								class="sapUiTinyMarginBegin" tooltip="{i18n>longtext}"/>
 
-							<Text text="|" class="sapUiTinyMarginBeginEnd"/>
+							<HBox alignItems="Center" justifyContent="End" width="6.5rem">
+								<Text text="|" class="sapUiTinyMarginBeginEnd"
+									visible="{= ${CharType} !== '01'}"/>
 
-							<Button type="Accept" icon="sap-icon://accept" press="onCloseAccept" tooltip="{i18n>accept}"
-								enabled="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"/>
-							<Button type="Reject" icon="sap-icon://decline" press="onCloseReject" tooltip="{i18n>reject}"
-								enabled="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"/>
+								<Button type="Accept" icon="sap-icon://accept" press="onCloseAccept" tooltip="{i18n>accept}"
+									visible="{= ${CharType} !== '01'}"
+									enabled="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"/>
+								<Button type="Reject" icon="sap-icon://decline" press="onCloseReject" tooltip="{i18n>reject}"
+									visible="{= ${CharType} !== '01'}"
+									enabled="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"/>
+							</HBox>
 						</HBox>
 					</HBox>
 				</CustomListItem>
