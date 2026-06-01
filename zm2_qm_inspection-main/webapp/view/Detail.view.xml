@@ -41,20 +41,21 @@
 					<IconTabFilter icon="sap-icon://attachment" design="Horizontal">
 						<upload:UploadSet
 							instantUpload="true"
-							showIcons="true"
+							showIcons="false"
 							uploadEnabled="true"
 							terminationEnabled="false"
-							uploadUrl="/sap/opu/odata/sap/ZQM_FIORI_INSPECTION_SRV/InspectionLotAttachmentSet"
-							items="{path: 'toAttachments', templateShareable: true}"
+							uploadUrl="/sap/opu/odata/sap/ZM2_QM_INSPECTION_SRV/InspectionLotAttachmentSet"
+							items="{path: 'toAttachments', templateShareable: false}"
 							beforeUploadStarts="onBeforeUploadStarts"
 							uploadCompleted="onUploadCompleted"
-							afterItemRemoved="onAfterItemRemoved">
+							afterItemRemoved="onAfterItemRemoved"
+							openPressed="onOpenAttachment">
 							<upload:items>
 								<upload:UploadSetItem
 									fileName="{Filename}"
 									mediaType="{Mimetype}"
 									visibleEdit="false"
-									url="/sap/opu/odata/sap/ZQM_FIORI_INSPECTION_SRV/InspectionLotAttachmentSet(InspectionLot='{InspectionLot}',AttachmentId='{AttachmentId}')/$value"/>
+									url="/sap/opu/odata/sap/ZM2_QM_INSPECTION_SRV/InspectionLotAttachmentSet(InspectionLot='{InspectionLot}',AttachmentId='{AttachmentId}')/$value"/>
 							</upload:items>
 						</upload:UploadSet>
 					</IconTabFilter>

@@ -512,24 +512,46 @@ sap.ui.define([
 			oEvent.getSource().getBinding("items").refresh();
 		},
 
+		onOpenAttachment: function (oEvent) {
+			//Standard-Download verhindern und Datei im neuen Tab öffnen
+			oEvent.preventDefault();
+			const oItem = oEvent.getParameter("item");
+			const sUrl = oItem && oItem.getUrl();
+			if (sUrl) {
+				window.open(sUrl, "_blank", "noopener,noreferrer");
+			}
+		},
+
 		onAfterItemRemoved: function (oEvent) {
-			const oCtx = oEvent.getParameter("item").getBindingContext();
+			const oItem = oEvent.getParameter("item");
+			const oCtx = oItem.getBindingContext();
 			const oModel = this.getView().getModel();
 			const sPath = "/" + oModel.createKey("InspectionLotAttachmentSet", {
 				InspectionLot: oCtx.getObject().InspectionLot,
 				AttachmentId: oCtx.getObject().AttachmentId
 			});
 
-			//Store reference to the deleted item because the UploadSet does not destroy it after deletion
-			this._oItemDeleted = oEvent.getParameter("item");
+			const oUploadSet = oItem.getParent();
 
 			oModel.remove(sPath, {
+				refreshAfterChange: false,   // kein Auto-Refresh -> wir steuern den Refresh manuell
 				success: () => {
-					//Destroy the item to prevent duplicated ID errors
-					this._oItemDeleted.destroy();
+					//Erst nach dem nächsten Event-Tick refreshen, damit alte UI-Items zerstört sind
+					setTimeout(() => {
+						const oBinding = oUploadSet ? oUploadSet.getBinding("items") : null;
+						if (oBinding) {
+							oBinding.refresh(true);
+						}
+					}, 0);
 				},
 				error: () => {
-					MessageBox.error(this.getI18nText("errorText"));
+					//Backend hat abgelehnt -> Liste wieder herstellen
+					setTimeout(() => {
+						const oBinding = oUploadSet ? oUploadSet.getBinding("items") : null;
+						if (oBinding) {
+							oBinding.refresh(true);
+						}
+					}, 0);
 				}
 			});
 		},
@@ -671,8 +693,10 @@ sap.ui.define([
 
 					if (sLowerLimit && sUpperLimit) {
 						sTitle = sTitle + ", " + this.getI18nText("tolerance") + ": " +
-							sLowerLimit + " - " + sUpperLimit + ")";
+							sLowerLimit + " - " + sUpperLimit;
 					}
+
+					sTitle = sTitle + ")";
 				} else if (sLowerLimit && sUpperLimit) {
 					sTitle = sTitle + " (" + this.getI18nText("tolerance") + ": " +
 						sLowerLimit + " - " + sUpperLimit;
