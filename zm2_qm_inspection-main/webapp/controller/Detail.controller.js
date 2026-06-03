@@ -631,21 +631,34 @@ sap.ui.define([
 		},
 
 		/**
-		 * Returns true if the value is outside the [lower, upper] range.
-		 * Only triggers when BOTH limits are present (user requirement).
+		 * Returns true if the value violates one of the present tolerance limits.
+		 * Each limit is checked independently, so it also works when only one limit is set:
+		 *  - only lower limit: value below the lower limit is out of tolerance
+		 *  - only upper limit: value above the upper limit is out of tolerance
+		 *  - both limits: value outside [lower, upper]
+		 * A missing limit yields NaN via _parseNumber and is simply skipped.
 		 * @private
 		 */
 		_isOutsideTolerance: function (sValue, sLowerLimit, sUpperLimit) {
-			if (!sValue || !sLowerLimit || !sUpperLimit) {
+			if (!sValue) {
 				return false;
 			}
 			const fValue = this._parseNumber(sValue);
-			const fLower = this._parseNumber(sLowerLimit);
-			const fUpper = this._parseNumber(sUpperLimit);
-			if (isNaN(fValue) || isNaN(fLower) || isNaN(fUpper)) {
+			if (isNaN(fValue)) {
 				return false;
 			}
-			return fValue < fLower || fValue > fUpper;
+
+			const fLower = this._parseNumber(sLowerLimit);
+			if (!isNaN(fLower) && fValue < fLower) {
+				return true;
+			}
+
+			const fUpper = this._parseNumber(sUpperLimit);
+			if (!isNaN(fUpper) && fValue > fUpper) {
+				return true;
+			}
+
+			return false;
 		},
 
 		/**
