@@ -69,6 +69,7 @@
 								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} === '01'}"
 								value="{ResValue}"
 								valueState="{parts: [{path: 'ResValue'},{path: 'LwTolLmt'},{path: 'UpTolLmt'}], formatter: '.formatValueState'}"
+								valueStateText="{i18n>valueStateOutOfTolerance}"
 								editable="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"/>
 
 							<Text text="{i18n>mean-value}: {MeanValue} |"

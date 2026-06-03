@@ -344,10 +344,22 @@ sap.ui.define([
 					InspLotAction: sOperation,
 					Usern2: sUsern2
 				},
-				success: () => {
+				success: (oResult, oResponse) => {
 					oDialog.setBusy(false);
 					oDialog.close();
-					MessageToast.show(this.getI18nText("inspPointCreated"));
+					//Success text (incl. the new inspection point number) is owned by the backend
+					//and delivered via the sap-message response header; fall back to the static text.
+					let sMsg;
+					const sHeader = oResponse && oResponse.headers &&
+						(oResponse.headers["sap-message"] || oResponse.headers["Sap-Message"] || oResponse.headers["SAP-Message"]);
+					if (sHeader) {
+						try {
+							sMsg = JSON.parse(sHeader).message;
+						} catch (e) {
+							//Ignore a malformed sap-message header
+						}
+					}
+					MessageToast.show(sMsg || this.getI18nText("inspPointCreated"));
 				},
 				error: () => {
 					oDialog.setBusy(false);
@@ -463,10 +475,11 @@ sap.ui.define([
 			if (!oCtx) {
 				return;
 			}
-			this.callCloseChar(" ", oCtx, false);
+			//bShowMessage = true: only the operation lock shows the success toast, not the per-characteristic buttons
+			this.callCloseChar(" ", oCtx, false, true);
 		},
 
-		callCloseChar: function (type, ctx, bSendChar = true) {
+		callCloseChar: function (type, ctx, bSendChar = true, bShowMessage = false) {
 			const oModel = this.getView().getModel();
 			const oData = {
 				InspCharacteristic: bSendChar ? ctx.getProperty("InspCharacteristic") : "",
@@ -479,7 +492,27 @@ sap.ui.define([
 			oModel.callFunction("/CloseCharacteristic", {
 				refreshAfterChange: true,
 				method: "POST",
-				urlParameters: oData
+				urlParameters: oData,
+				//Success message text is owned by the backend and delivered via the sap-message response header.
+				//Errors are surfaced through the ODataModel's standard MessageManager channel - no custom handling here.
+				success: (oResult, oResponse) => {
+					if (!bShowMessage) {
+						return;
+					}
+					const sHeader = oResponse && oResponse.headers &&
+						(oResponse.headers["sap-message"] || oResponse.headers["Sap-Message"] || oResponse.headers["SAP-Message"]);
+					if (!sHeader) {
+						return;
+					}
+					try {
+						const oMsg = JSON.parse(sHeader);
+						if (oMsg && oMsg.message) {
+							MessageToast.show(oMsg.message);
+						}
+					} catch (e) {
+						//Ignore a malformed sap-message header - no toast in that case
+					}
+				}
 			});
 		},
 

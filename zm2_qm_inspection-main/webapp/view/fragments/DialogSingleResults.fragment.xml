@@ -14,7 +14,8 @@
 								{path: 'InspectionLot'},
 								{path: 'InspLotAction'},
 								{path: 'InspSample'}
-							], formatter: '.formatSingleResultValueState'}"/>
+							], formatter: '.formatSingleResultValueState'}"
+							valueStateText="{i18n>valueStateOutOfTolerance}"/>
 					</HBox>
 				</CustomListItem>
 			</List>
