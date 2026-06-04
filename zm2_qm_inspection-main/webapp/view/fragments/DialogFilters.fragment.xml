@@ -16,11 +16,16 @@
                         submit="onSubmitFilter"
                         tokens="{FilterModel>/plant}"
                         showValueHelp="false"
+                        showSuggestion="true"
+                        suggestionItems="{Suggest>/plant}"
                         tokenUpdate="onTokenUpdate"
                     >
                         <tokens>
                             <Token text="{FilterModel>text}" />
                         </tokens>
+                        <suggestionItems>
+                            <core:Item text="{Suggest>value}" />
+                        </suggestionItems>
                         <layoutData>
                             <FlexItemData growFactor="1" />
                         </layoutData>
@@ -42,11 +47,16 @@
                         submit="onSubmitFilter"
                         tokens="{FilterModel>/workplace}"
                         showValueHelp="false"
+                        showSuggestion="true"
+                        suggestionItems="{Suggest>/workplace}"
                         tokenUpdate="onTokenUpdate"
                     >
                         <tokens>
                             <Token text="{FilterModel>text}" />
                         </tokens>
+                        <suggestionItems>
+                            <core:Item text="{Suggest>value}" />
+                        </suggestionItems>
                         <layoutData>
                             <FlexItemData growFactor="1" />
                         </layoutData>
@@ -68,11 +78,16 @@
                         submit="onSubmitFilter"
                         tokens="{FilterModel>/material}"
                         showValueHelp="false"
+                        showSuggestion="true"
+                        suggestionItems="{Suggest>/material}"
                         tokenUpdate="onTokenUpdate"
                     >
                         <tokens>
                             <Token text="{FilterModel>text}" />
                         </tokens>
+                        <suggestionItems>
+                            <core:ListItem text="{Suggest>value}" additionalText="{Suggest>text}" />
+                        </suggestionItems>
                         <layoutData>
                             <FlexItemData growFactor="1" />
                         </layoutData>

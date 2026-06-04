@@ -25,7 +25,45 @@ sap.ui.define([
 				}
 			}), "FilterModel");
 
+			//Holds the distinct suggestion values derived from the currently loaded inspection lots
+			this.getView().setModel(new JSONModel({
+				plant: [],
+				workplace: [],
+				material: []
+			}), "Suggest");
+
 			this._bInitialSortApplied = false;
+		},
+
+		//Rebuild the type-ahead suggestions from the loaded inspection lots whenever the list refreshes.
+		//Suggestions therefore only contain values that actually occur in the current list.
+		onLotListUpdateFinished: function () {
+			const aItems = this.getView().byId("idInspectionLotList").getItems();
+			const oPlant = {};
+			const oWork = {};
+			const oMaterial = {};
+
+			aItems.forEach((oItem) => {
+				const oCtx = oItem.getBindingContext();
+				if (!oCtx) {
+					return;
+				}
+				const oData = oCtx.getObject();
+				if (oData.Werks) {
+					oPlant[oData.Werks] = true;
+				}
+				if (oData.Workcenter) {
+					oWork[oData.Workcenter] = true;
+				}
+				if (oData.Material) {
+					oMaterial[oData.Material] = oData.MaterialText || "";
+				}
+			});
+
+			const oSuggest = this.getView().getModel("Suggest");
+			oSuggest.setProperty("/plant", Object.keys(oPlant).sort().map((v) => ({ value: v })));
+			oSuggest.setProperty("/workplace", Object.keys(oWork).sort().map((v) => ({ value: v })));
+			oSuggest.setProperty("/material", Object.keys(oMaterial).sort().map((v) => ({ value: v, text: oMaterial[v] })));
 		},
 
 		onBeforeRendering: function () {
@@ -107,23 +145,44 @@ sap.ui.define([
 			const oModel = this.getView().getModel("FilterModel");
 			const arr = oModel.getProperty(sPath);
 
-			if (sValue) {
+			if (sValue && !arr.some((oEntry) => oEntry.text === sValue)) {
 				arr.push({ text: sValue });
 				oModel.setProperty(sPath, arr);
-				oEvent.getSource().setValue("");
 			}
+			oEvent.getSource().setValue("");
 
 			this.onApplyFilters();
 		},
 
+		//Keep the FilterModel in sync with token add/remove. Tokens are matched by their text value
+		//(not by binding context) so this also works for tokens created by selecting a suggestion.
 		onTokenUpdate: function (oEvent) {
+			const oMultiInput = oEvent.getSource();
+			const oTokenBinding = oMultiInput.getBinding("tokens");
+			if (!oTokenBinding) {
+				return;
+			}
+			const sPath = oTokenBinding.getPath();            // e.g. "/plant"
 			const oModel = this.getView().getModel("FilterModel");
-			const sPath = oEvent.getParameter("removedTokens")[0].getBindingContext("FilterModel").getPath();
-			const aProp = sPath.split("/");
-			const arr = oModel.getProperty("/" + aProp[1]);
+			let aArr = oModel.getProperty(sPath) || [];
 
-			arr.splice(aProp[2], 1);
-			oModel.setProperty("/" + aProp[1], arr);
+			//Remove deleted tokens (matched by value)
+			(oEvent.getParameter("removedTokens") || []).forEach((oToken) => {
+				const sText = oToken.getText();
+				aArr = aArr.filter((oEntry) => oEntry.text !== sText);
+			});
+
+			//Add tokens created by selecting a suggestion
+			(oEvent.getParameter("addedTokens") || []).forEach((oToken) => {
+				const sText = oToken.getText();
+				if (sText && !aArr.some((oEntry) => oEntry.text === sText)) {
+					aArr.push({ text: sText });
+				}
+			});
+
+			oModel.setProperty(sPath, aArr);
+			oMultiInput.setValue("");
+			this.onApplyFilters();
 		},
 
 		onSelectionChange: function (oEvent) {

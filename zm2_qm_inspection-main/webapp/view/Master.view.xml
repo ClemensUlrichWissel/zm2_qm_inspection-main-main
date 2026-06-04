@@ -7,8 +7,9 @@
 				<SearchField id="idSearch" search="onSearch" />
 				<barcode:BarcodeScannerButton scanSuccess="onBarcodeScanSuccess"/>
 			</HBox>
-			<List id="idInspectionLotList" 
-				items="{path: '/InspectionLotSet', parameters: {select: 'CreatedDate,InspectionLotNumber,CreatedBy,Material,MaterialText,Batch,Workcenter,OrderNumber'}}">
+			<List id="idInspectionLotList"
+				updateFinished="onLotListUpdateFinished"
+				items="{path: '/InspectionLotSet', parameters: {select: 'CreatedDate,InspectionLotNumber,CreatedBy,Material,MaterialText,Batch,Workcenter,OrderNumber,Werks'}}">
 				<items>
 					<ObjectListItem intro="{i18n>InspectionLot}" 
 						title="{InspectionLotNumber}" type="Navigation" press="onSelectionChange">
