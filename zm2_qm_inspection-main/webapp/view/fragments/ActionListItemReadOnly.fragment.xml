@@ -1,0 +1,69 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<CustomListItem>
+		<Panel expandable="true" expanded="true" class="sapUiSmallMargin">
+			<headerToolbar>
+				<Toolbar>
+					<Title level="H1"
+						text="{parts: [
+							{path: 'InspLotAction'},
+							{path: 'ActionText'},
+							{path: 'Workcenter'},
+							{path: 'WorkcenterText'},
+							{path: 'ControlKey'}
+						], formatter: '.formatOperationOverviewTitle'}"/>
+				</Toolbar>
+			</headerToolbar>
+			<List items="{path: 'toCharacteristics', templateShareable: false}">
+				<CustomListItem class="sapUiTinyMargin" type="Inactive">
+					<HBox alignItems="Center">
+						<Text text="{parts: [
+							{path: 'InspCharacteristic'},
+							{path: 'MasterCharact'},
+							{path: 'CharactText'},
+							{path: 'TargetVal'},
+							{path: 'UpTolLmt'},
+							{path: 'LwTolLmt'},
+							{path: 'CharType'},
+							{path: 'UnitText'},
+							{path: 'Scope'}
+						], formatter: '.formatCharacteristicTitle'}">
+							<layoutData>
+								<FlexItemData maxWidth="50%" minWidth="50%"
+									styleClass="sapUiSmallMarginBegin"/>
+							</layoutData>
+						</Text>
+						<HBox width="50%" justifyContent="End" alignItems="Center">
+							<!-- Übersicht: leere, deaktivierte Felder - nur Typ-Anzeige, keine erfassten Werte -->
+
+							<!-- Qualitativ Scope=1: Ja/Nein -->
+							<CheckBox selected="false" enabled="false"
+								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
+								text="{i18n>yes}"/>
+							<CheckBox selected="false" enabled="false"
+								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
+								text="{i18n>no}"/>
+
+							<!-- Aggregat-Inputs Scope>1 ohne single_res -->
+							<Input placeholder="{i18n>placeholderTotal}" enabled="false"
+								visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} !== '01' &amp;&amp; !${SingleRes}}"/>
+							<Input placeholder="{i18n>placeholderFailed}" enabled="false"
+								visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} !== '01' &amp;&amp; !${SingleRes}}">
+								<layoutData>
+									<FlexItemData styleClass="sapUiTinyMarginBegin"/>
+								</layoutData>
+							</Input>
+
+							<!-- Quantitativ Einzelwert Scope=1 -->
+							<Input placeholder="{i18n>placeholderResult}" enabled="false"
+								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} === '01'}"/>
+
+							<!-- Info/Langtext - rein lesend -->
+							<Button icon="sap-icon://hint" press="onPressCharacteristic"
+								class="sapUiSmallMarginBegin" tooltip="{i18n>longtext}"/>
+						</HBox>
+					</HBox>
+				</CustomListItem>
+			</List>
+		</Panel>
+	</CustomListItem>
+</core:FragmentDefinition>

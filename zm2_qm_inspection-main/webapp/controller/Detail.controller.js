@@ -620,6 +620,23 @@ sap.ui.define([
 		},
 
 		/**
+		 * Title formatter for the read-only operations overview tab.
+		 * Shows operation, work center and control key only - no recording timestamp or sample,
+		 * since this tab is a plain overview of which operations exist for the inspection lot.
+		 */
+		formatOperationOverviewTitle: function (sOperation, sOperationText, sWorkcenter, sWorkcenterText, sControlKey) {
+			let sTitle = this.getI18nText("operation") + " " + sOperation + " " + sOperationText;
+
+			sTitle = sTitle + " | " + this.getI18nText("workcenter") + " " + sWorkcenter + " " + sWorkcenterText;
+
+			if (sControlKey) {
+				sTitle = sTitle + " | " + this.getI18nText("controlKey") + " " + sControlKey;
+			}
+
+			return sTitle;
+		},
+
+		/**
 		 * Parses a number string that may use either '.' or ',' as decimal separator.
 		 * @private
 		 */
