@@ -35,15 +35,30 @@ sap.ui.define([
 						//Success toast only for measured-value fields (not inspection type, comment, etc.)
 						const sChangedProp = (oEvent.getParameter("path") || "").split("/").pop();
 						const bIsResult = ["ResValue", "ValidVals", "Nonconf"].indexOf(sChangedProp) !== -1;
+						//Inspection type: the lot's Usern2 is re-derived from the inspection points when read,
+						//so the automatic re-read after the change would revert the dropdown. Suppress it for this change.
+						const bIsInspType = sChangedProp === "Usern2";
+
 						oView.setBusy(true);
+						if (bIsInspType) {
+							oModel.setRefreshAfterChange(false);
+						}
 						oModel.submitChanges({
 							success: () => {
 								oView.setBusy(false);
+								if (bIsInspType) {
+									oModel.setRefreshAfterChange(true);
+								}
 								if (bIsResult) {
 									MessageToast.show(this.getI18nText("resultRecorded"));
 								}
 							},
-							error: () => oView.setBusy(false)
+							error: () => {
+								oView.setBusy(false);
+								if (bIsInspType) {
+									oModel.setRefreshAfterChange(true);
+								}
+							}
 						});
 					});
 					this._bPropertyChangeAttached = true;
