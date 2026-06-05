@@ -1,6 +1,6 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
 	<CustomListItem>
-		<Panel expandable="true" expanded="true" class="sapUiSmallMargin">
+		<Panel expandable="true" expanded="false" class="sapUiSmallMargin">
 			<headerToolbar>
 				<Toolbar>
 					<Title level="H1"

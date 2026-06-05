@@ -532,21 +532,29 @@ sap.ui.define([
 
 		//Default state of the history tab: all operations collapsed (runs on every list refresh)
 		onHistoryListUpdateFinished: function () {
-			this._setHistoryPanelsExpanded(false);
+			this._setPanelsExpanded("idMainList", false);
 		},
 
 		onExpandAllHistory: function () {
-			this._setHistoryPanelsExpanded(true);
+			this._setPanelsExpanded("idMainList", true);
 		},
 
 		onCollapseAllHistory: function () {
-			this._setHistoryPanelsExpanded(false);
+			this._setPanelsExpanded("idMainList", false);
 		},
 
-		//Expand/collapse every operation panel in the history list.
-		//Each list item is the ActionListItem CustomListItem whose first content control is the Panel.
-		_setHistoryPanelsExpanded: function (bExpand) {
-			const oList = this.getView().byId("idMainList");
+		onExpandAllOperations: function () {
+			this._setPanelsExpanded("idOperationsList", true);
+		},
+
+		onCollapseAllOperations: function () {
+			this._setPanelsExpanded("idOperationsList", false);
+		},
+
+		//Expand/collapse every operation panel in the given list.
+		//Each list item is a CustomListItem whose first content control is the Panel.
+		_setPanelsExpanded: function (sListId, bExpand) {
+			const oList = this.getView().byId(sListId);
 			if (!oList) {
 				return;
 			}

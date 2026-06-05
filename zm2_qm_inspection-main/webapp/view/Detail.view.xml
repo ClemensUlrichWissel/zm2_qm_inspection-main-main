@@ -34,6 +34,11 @@
 						</List>
 					</IconTabFilter>
 					<IconTabFilter key="operations" icon="sap-icon://activities" design="Horizontal">
+						<Toolbar>
+							<ToolbarSpacer/>
+							<Button icon="sap-icon://expand-group" text="{i18n>expandAll}" press="onExpandAllOperations"/>
+							<Button icon="sap-icon://collapse-group" text="{i18n>collapseAll}" press="onCollapseAllOperations"/>
+						</Toolbar>
 						<List id="idOperationsList" items="{toActions}">
 							<core:Fragment fragmentName="de.mindsquare.InspectionQM.view.fragments.ActionListItemReadOnly" type="XML"/>
 						</List>
