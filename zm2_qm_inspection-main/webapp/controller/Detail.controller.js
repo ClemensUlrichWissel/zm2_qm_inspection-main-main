@@ -31,10 +31,18 @@ sap.ui.define([
 				//attach the listener multiple times (which would cause N submits per change).
 				if (!this._bPropertyChangeAttached) {
 					oView.setBusyIndicatorDelay(0);
-					oModel.attachPropertyChange(() => {
+					oModel.attachPropertyChange((oEvent) => {
+						//Success toast only for measured-value fields (not inspection type, comment, etc.)
+						const sChangedProp = (oEvent.getParameter("path") || "").split("/").pop();
+						const bIsResult = ["ResValue", "ValidVals", "Nonconf"].indexOf(sChangedProp) !== -1;
 						oView.setBusy(true);
 						oModel.submitChanges({
-							success: () => oView.setBusy(false),
+							success: () => {
+								oView.setBusy(false);
+								if (bIsResult) {
+									MessageToast.show(this.getI18nText("resultRecorded"));
+								}
+							},
 							error: () => oView.setBusy(false)
 						});
 					});
@@ -57,7 +65,13 @@ sap.ui.define([
 			oModel.setProperty(oCtx.getPath() + "/Code1", sNewValue);
 			oView.setBusy(true);
 			oModel.submitChanges({
-				success: () => oView.setBusy(false),
+				success: () => {
+					oView.setBusy(false);
+					//Only when actually setting a value (not when toggling a selection off)
+					if (sNewValue) {
+						MessageToast.show(this.getI18nText("resultRecorded"));
+					}
+				},
 				error: () => oView.setBusy(false)
 			});
 		},
@@ -512,6 +526,37 @@ sap.ui.define([
 					} catch (e) {
 						//Ignore a malformed sap-message header - no toast in that case
 					}
+				}
+			});
+		},
+
+		//Default state of the history tab: all operations collapsed (runs on every list refresh)
+		onHistoryListUpdateFinished: function () {
+			this._setHistoryPanelsExpanded(false);
+		},
+
+		onExpandAllHistory: function () {
+			this._setHistoryPanelsExpanded(true);
+		},
+
+		onCollapseAllHistory: function () {
+			this._setHistoryPanelsExpanded(false);
+		},
+
+		//Expand/collapse every operation panel in the history list.
+		//Each list item is the ActionListItem CustomListItem whose first content control is the Panel.
+		_setHistoryPanelsExpanded: function (bExpand) {
+			const oList = this.getView().byId("idMainList");
+			if (!oList) {
+				return;
+			}
+			oList.getItems().forEach((oItem) => {
+				if (!oItem.getContent) {
+					return;
+				}
+				const oPanel = oItem.getContent()[0];
+				if (oPanel && oPanel.setExpanded) {
+					oPanel.setExpanded(bExpand);
 				}
 			});
 		},

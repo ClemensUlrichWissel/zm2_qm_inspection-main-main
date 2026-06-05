@@ -39,7 +39,12 @@
 						</List>
 					</IconTabFilter>
 					<IconTabFilter key="all" icon="sap-icon://clinical-tast-tracker" design="Horizontal">
-						<List id="idMainList" items="{
+						<Toolbar>
+							<ToolbarSpacer/>
+							<Button icon="sap-icon://expand-group" text="{i18n>expandAll}" press="onExpandAllHistory"/>
+							<Button icon="sap-icon://collapse-group" text="{i18n>collapseAll}" press="onCollapseAllHistory"/>
+						</Toolbar>
+						<List id="idMainList" updateFinished="onHistoryListUpdateFinished" items="{
 								path: 'toActions',
 								filters: [{path: 'Closed', operator: 'EQ', value1: true}],
 								sorter: [
