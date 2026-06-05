@@ -15,7 +15,8 @@
                     <MultiInput
                         submit="onSubmitFilter"
                         tokens="{FilterModel>/plant}"
-                        showValueHelp="false"
+                        showValueHelp="true"
+                        valueHelpRequest="onValueHelpRequest"
                         showSuggestion="true"
                         suggestionItems="{Suggest>/plant}"
                         tokenUpdate="onTokenUpdate"
@@ -46,7 +47,8 @@
                     <MultiInput
                         submit="onSubmitFilter"
                         tokens="{FilterModel>/workplace}"
-                        showValueHelp="false"
+                        showValueHelp="true"
+                        valueHelpRequest="onValueHelpRequest"
                         showSuggestion="true"
                         suggestionItems="{Suggest>/workplace}"
                         tokenUpdate="onTokenUpdate"
@@ -77,7 +79,8 @@
                     <MultiInput
                         submit="onSubmitFilter"
                         tokens="{FilterModel>/material}"
-                        showValueHelp="false"
+                        showValueHelp="true"
+                        valueHelpRequest="onValueHelpRequest"
                         showSuggestion="true"
                         suggestionItems="{Suggest>/material}"
                         tokenUpdate="onTokenUpdate"

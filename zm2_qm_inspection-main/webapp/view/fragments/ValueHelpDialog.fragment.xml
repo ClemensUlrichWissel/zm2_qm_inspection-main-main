@@ -1,0 +1,25 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<TableSelectDialog
+		multiSelect="true"
+		rememberSelections="true"
+		search="onValueHelpSearch"
+		liveChange="onValueHelpSearch"
+		confirm="onValueHelpConfirm"
+		cancel="onValueHelpCancel"
+		items="{Suggest>/current}">
+		<columns>
+			<Column>
+				<Text text="{i18n>vhValue}"/>
+			</Column>
+			<Column>
+				<Text text="{i18n>vhDescription}"/>
+			</Column>
+		</columns>
+		<ColumnListItem selected="{Suggest>selected}">
+			<cells>
+				<Text text="{Suggest>value}"/>
+				<Text text="{Suggest>text}"/>
+			</cells>
+		</ColumnListItem>
+	</TableSelectDialog>
+</core:FragmentDefinition>

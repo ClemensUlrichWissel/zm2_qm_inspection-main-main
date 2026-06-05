@@ -3,8 +3,9 @@ sap.ui.define([
 	"sap/ui/model/json/JSONModel",
 	"sap/ui/model/Filter",
 	"sap/ui/model/FilterOperator",
-	"sap/ui/model/Sorter"
-], function (BaseController, JSONModel, Filter, FilterOperator, Sorter) {
+	"sap/ui/model/Sorter",
+	"sap/ui/core/Fragment"
+], function (BaseController, JSONModel, Filter, FilterOperator, Sorter, Fragment) {
 	"use strict";
 
 	//Order in which active sort fields are applied to the list binding
@@ -38,6 +39,18 @@ sap.ui.define([
 		//Rebuild the type-ahead suggestions from the loaded inspection lots whenever the list refreshes.
 		//Suggestions therefore only contain values that actually occur in the current list.
 		onLotListUpdateFinished: function () {
+			//Build the value lists only from the UNFILTERED set. Otherwise applying a filter
+			//would shrink the list to the selected values and the value help would lose its other options.
+			const oFilterModel = this.getView().getModel("FilterModel");
+			const bFiltered =
+				(oFilterModel.getProperty("/plant") || []).length > 0 ||
+				(oFilterModel.getProperty("/workplace") || []).length > 0 ||
+				(oFilterModel.getProperty("/material") || []).length > 0 ||
+				!!this.getView().byId("idSearch").getValue();
+			if (bFiltered) {
+				return;
+			}
+
 			const aItems = this.getView().byId("idInspectionLotList").getItems();
 			const oPlant = {};
 			const oWork = {};
@@ -183,6 +196,85 @@ sap.ui.define([
 			oModel.setProperty(sPath, aArr);
 			oMultiInput.setValue("");
 			this.onApplyFilters();
+		},
+
+		//F4 / value help: open a TableSelectDialog with the distinct values of the clicked filter field
+		onValueHelpRequest: function (oEvent) {
+			const oMultiInput = oEvent.getSource();
+			//tokens binding path is "/plant" | "/workplace" | "/material"
+			const sField = oMultiInput.getBinding("tokens").getPath().replace("/", "");
+			this._sVhField = sField;
+
+			const oSuggest = this.getView().getModel("Suggest");
+			const oFilterModel = this.getView().getModel("FilterModel");
+			const aTokenValues = (oFilterModel.getProperty("/" + sField) || []).map((oEntry) => oEntry.text);
+
+			//Expose the field's distinct values under one path; pre-select the values already chosen as tokens
+			const aValues = (oSuggest.getProperty("/" + sField) || []).map((oEntry) => ({
+				value:    oEntry.value,
+				text:     oEntry.text,
+				selected: aTokenValues.indexOf(oEntry.value) !== -1
+			}));
+			oSuggest.setProperty("/current", aValues);
+
+			const mTitleKey = { plant: "plant", workplace: "workplace", material: "material" };
+
+			Fragment.load({
+				id: this.getView().getId(),
+				name: "de.mindsquare.InspectionQM.view.fragments.ValueHelpDialog",
+				controller: this
+			}).then((oDialog) => {
+				this._oVhDialog = oDialog;
+				this.getView().addDependent(oDialog);
+				oDialog.setTitle(this.getI18nText(mTitleKey[sField] || "filters"));
+				oDialog.open();
+			});
+		},
+
+		onValueHelpSearch: function (oEvent) {
+			const sValue = oEvent.getParameter("value") || "";
+			const oBinding = oEvent.getSource().getBinding("items");
+			if (!oBinding) {
+				return;
+			}
+			if (sValue) {
+				oBinding.filter([new Filter({
+					filters: [
+						new Filter("value", FilterOperator.Contains, sValue),
+						new Filter("text", FilterOperator.Contains, sValue)
+					],
+					and: false
+				})]);
+			} else {
+				oBinding.filter([]);
+			}
+		},
+
+		onValueHelpConfirm: function () {
+			const oSuggest = this.getView().getModel("Suggest");
+			const aCurrent = oSuggest.getProperty("/current") || [];
+			const oFilterModel = this.getView().getModel("FilterModel");
+
+			//Replace the field's tokens with exactly the selected rows -> supports adding AND removing.
+			//Read from the model flag (two-way bound), so selections survive searching/filtering in the dialog.
+			const aTokens = aCurrent
+				.filter((oEntry) => oEntry.selected)
+				.map((oEntry) => ({ text: oEntry.value }));
+			oFilterModel.setProperty("/" + this._sVhField, aTokens);
+
+			this.onApplyFilters();
+			this._destroyVhDialog();
+		},
+
+		onValueHelpCancel: function () {
+			this._destroyVhDialog();
+		},
+
+		_destroyVhDialog: function () {
+			if (this._oVhDialog) {
+				this._oVhDialog.destroy();
+				this._oVhDialog = null;
+			}
 		},
 
 		onSelectionChange: function (oEvent) {
