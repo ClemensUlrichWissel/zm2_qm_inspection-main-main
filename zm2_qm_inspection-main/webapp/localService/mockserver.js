@@ -21,7 +21,7 @@ sap.ui.define(['sap/ui/core/util/MockServer'], function(MockServer) {
                 iErrorCode = sErrorParam === 'badRequest' ? 400 : 500,
                 oManifest = jQuery.sap.syncGetJSON(sManifestUrl).data,
                 oDataSource = oManifest['sap.app'].dataSources,
-                oMainDataSource = oDataSource.ZQM_FIORI_INSPECTION_SRV,
+                oMainDataSource = oDataSource.ZM2_QM_INSPECTION_SRV,
                 sMetadataUrl = jQuery.sap.getModulePath(
                     _sAppModulePath + oMainDataSource.settings.localUri.replace('.xml', ''),
                     '.xml'
