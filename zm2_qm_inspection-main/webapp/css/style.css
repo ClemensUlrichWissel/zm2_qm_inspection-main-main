@@ -1,1 +1,7 @@
 /* Enter your custom styles here */
+
+/* SplitApp injiziert auf Tablet-Portrait einen eigenen Master-Toggle-Button. Wir liefern unseren
+   eigenen einheitlichen Button via showNavButton in den Pages - der Auto-Button waere doppelt. */
+.sapMSplitContainerMasterBtn {
+	display: none !important;
+}

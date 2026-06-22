@@ -1,6 +1,15 @@
 <mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="de.mindsquare.InspectionQM.controller.Detail"
 	xmlns:html="http://www.w3.org/1999/xhtml" xmlns:upload="sap.m.upload">
 	<Page title="{i18n>titleDetailPage}">
+		<customHeader>
+			<Bar>
+				<contentLeft>
+					<Button icon="sap-icon://menu2" text="{i18n>titleMasterPage}" type="Transparent" press="onShowMaster"
+						visible="{= ${device>/system/phone} || ${device>/orientation/portrait} }"/>
+					<Title text="{i18n>titleDetailPage}" level="H2"/>
+				</contentLeft>
+			</Bar>
+		</customHeader>
 		<content>
 			<HBox alignItems="Start" justifyContent="SpaceBetween" width="100%" wrap="Wrap">
 				<ObjectHeader
@@ -31,16 +40,6 @@
 					<IconTabFilter key="open" icon="sap-icon://pending" design="Horizontal">
 						<List id="idOpenActionsList" items="{path: 'toActions', filters: [{path: 'Closed', operator: 'EQ', value1: false}]}">
 							<core:Fragment fragmentName="de.mindsquare.InspectionQM.view.fragments.ActionListItem" type="XML"/>
-						</List>
-					</IconTabFilter>
-					<IconTabFilter key="operations" icon="sap-icon://activities" design="Horizontal">
-						<Toolbar>
-							<ToolbarSpacer/>
-							<Button icon="sap-icon://expand-group" text="{i18n>expandAll}" press="onExpandAllOperations"/>
-							<Button icon="sap-icon://collapse-group" text="{i18n>collapseAll}" press="onCollapseAllOperations"/>
-						</Toolbar>
-						<List id="idOperationsList" items="{toActions}">
-							<core:Fragment fragmentName="de.mindsquare.InspectionQM.view.fragments.ActionListItemReadOnly" type="XML"/>
 						</List>
 					</IconTabFilter>
 					<IconTabFilter key="all" icon="sap-icon://clinical-tast-tracker" design="Horizontal">
@@ -80,6 +79,16 @@
 									url="/sap/opu/odata/sap/ZM2_QM_INSPECTION_SRV/InspectionLotAttachmentSet(InspectionLot='{InspectionLot}',AttachmentId='{AttachmentId}')/$value"/>
 							</upload:items>
 						</upload:UploadSet>
+					</IconTabFilter>
+					<IconTabFilter key="operations" icon="sap-icon://activities" design="Horizontal">
+						<Toolbar>
+							<ToolbarSpacer/>
+							<Button icon="sap-icon://expand-group" text="{i18n>expandAll}" press="onExpandAllOperations"/>
+							<Button icon="sap-icon://collapse-group" text="{i18n>collapseAll}" press="onCollapseAllOperations"/>
+						</Toolbar>
+						<List id="idOperationsList" items="{toActions}">
+							<core:Fragment fragmentName="de.mindsquare.InspectionQM.view.fragments.ActionListItemReadOnly" type="XML"/>
+						</List>
 					</IconTabFilter>
 				</items>
 			</IconTabBar>
