@@ -136,8 +136,28 @@ sap.ui.define([
 				//Speicher-Ziel separat merken (kann eine single_result-Zeile sein)
 				oDialog._oTargetCtx = oTargetCtx;
 				this.getView().addDependent(oDialog);
+
+				//Wenn der Fehlerkatalog genau einen Eintrag enthält, diesen direkt vorbelegen
+				//(wie in QE51N). toDefectCodes wird asynchron geladen -> auf dataReceived warten.
+				const oComboBox = oDialog.getContent()[0].getItems()[1];
+				const oItemsBinding = oComboBox.getBinding("items");
+				if (oItemsBinding) {
+					oItemsBinding.attachEventOnce("dataReceived", () => this._preselectSingleDefectCode(oComboBox));
+				}
+
 				oDialog.open();
 			});
+		},
+
+		/**
+		 * Belegt die Fehlerart-ComboBox automatisch vor, wenn der Katalog genau einen Eintrag hat.
+		 * @param {sap.m.ComboBox} oComboBox Die Fehlerart-ComboBox
+		 */
+		_preselectSingleDefectCode: function (oComboBox) {
+			const aItems = oComboBox.getItems();
+			if (aItems.length === 1) {
+				oComboBox.setSelectedItem(aItems[0]);
+			}
 		},
 
 		/**
@@ -193,7 +213,18 @@ sap.ui.define([
 		},
 
 		onDefectCodeCancel: function (oEvent) {
-			oEvent.getSource().getParent().destroy();
+			const oDialog = oEvent.getSource().getParent();
+			//Auch bei Abbruch als "Nein" bewerten (generischer NOK-Code aus i18n>XNOK).
+			//Sonst bliebe ein zuvor gesetztes "Ja" im Modell stehen und es wären
+			//optisch beide Haken (Ja + Nein) gesetzt.
+			const oTargetCtx = oDialog._oTargetCtx;
+			if (oTargetCtx) {
+				const sXNOK = this.getView().getModel("i18n").getResourceBundle().getText("XNOK");
+				if (sXNOK) {
+					this._setEvaluationCode(oTargetCtx, sXNOK);
+				}
+			}
+			oDialog.destroy();
 		},
 
 		onPressCharacteristic: function (oEvent) {
