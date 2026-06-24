@@ -329,14 +329,140 @@ sap.ui.define([
 		onAddNewInspPoint: function () {
 			const oCtx = this.getView().getBindingContext();
 
+			//Fresh field model on each open; Prüfer defaults to the current user
+			this.getView().setModel(new JSONModel({
+				operation:  "",
+				pruefer:    this._getCurrentUser(),
+				maschine:   "",
+				nestnummer: "1",
+				usern2:     "002"   // Default: Serienprüfung
+			}), "newIP");
+
+			//Recently entered Prüfer values (browser-local) as type-ahead suggestions
+			this.getView().setModel(new JSONModel({ recent: this._loadPrueferHistory() }), "prueferHist");
+
 			Fragment.load({
 				name: "de.mindsquare.InspectionQM.view.fragments.DialogNewInspPoint",
 				controller: this
 			}).then((oDialog) => {
+				this._oNewIPDialog = oDialog;
 				this.getView().addDependent(oDialog);
 				oDialog.setBindingContext(oCtx);
 				oDialog.open();
 			});
+		},
+
+		//--- Prüfer history (browser localStorage) -------------------------------------------------
+		_PRUEFER_STORAGE_KEY: "de.mindsquare.InspectionQM.prueferRecent",
+
+		_loadPrueferHistory: function () {
+			try {
+				const sRaw = window.localStorage.getItem(this._PRUEFER_STORAGE_KEY);
+				const aValues = sRaw ? JSON.parse(sRaw) : [];
+				return Array.isArray(aValues) ? aValues.map((sValue) => ({ value: sValue })) : [];
+			} catch (e) {
+				return [];
+			}
+		},
+
+		_savePrueferHistory: function (sValue) {
+			if (!sValue) {
+				return;
+			}
+			try {
+				const sRaw = window.localStorage.getItem(this._PRUEFER_STORAGE_KEY);
+				let aValues = sRaw ? JSON.parse(sRaw) : [];
+				if (!Array.isArray(aValues)) {
+					aValues = [];
+				}
+				//Most-recent first, no duplicates, keep last 10
+				aValues = aValues.filter((sEntry) => sEntry !== sValue);
+				aValues.unshift(sValue);
+				aValues = aValues.slice(0, 10);
+				window.localStorage.setItem(this._PRUEFER_STORAGE_KEY, JSON.stringify(aValues));
+			} catch (e) {
+				//ignore storage errors (e.g. private mode)
+			}
+		},
+
+		//Best-effort current user for the Prüfer default (FLP if available, otherwise empty -> backend defaults to sy-uname)
+		_getCurrentUser: function () {
+			try {
+				if (sap.ushell && sap.ushell.Container && sap.ushell.Container.getUser) {
+					return sap.ushell.Container.getUser().getId();
+				}
+			} catch (e) {
+				//ignore - no shell available
+			}
+			return "";
+		},
+
+		//F4 for Maschine: fetch the QE51N value list via the MachineF4 function import (filtered by the lot's plant)
+		onMachineValueHelp: function () {
+			const oCtx = this.getView().getBindingContext();
+			const sWerks = oCtx ? oCtx.getObject().Werks : "";
+			const oModel = this.getView().getModel();
+
+			oModel.callFunction("/MachineF4", {
+				method: "GET",
+				urlParameters: { Werks: sWerks },
+				success: (oData) => {
+					const aResults = (oData && oData.results) ? oData.results : [];
+					const aItems = aResults.map((oEntry) => ({ code: oEntry.Code, description: oEntry.Description }));
+					const oMachines = new JSONModel({ items: aItems });
+
+					Fragment.load({
+						name: "de.mindsquare.InspectionQM.view.fragments.MachineValueHelp",
+						controller: this
+					}).then((oDialog) => {
+						this._oMachineDialog = oDialog;
+						this.getView().addDependent(oDialog);
+						oDialog.setModel(oMachines, "Machines");
+						oDialog.open();
+					});
+				},
+				error: () => {
+					//Detailed error message comes via the central ErrorHandling.js
+				}
+			});
+		},
+
+		onMachineSearch: function (oEvent) {
+			const sValue = oEvent.getParameter("value") || "";
+			const oBinding = oEvent.getSource().getBinding("items");
+			if (!oBinding) {
+				return;
+			}
+			if (sValue) {
+				oBinding.filter([new Filter({
+					filters: [
+						new Filter("code", FilterOperator.Contains, sValue),
+						new Filter("description", FilterOperator.Contains, sValue)
+					],
+					and: false
+				})]);
+			} else {
+				oBinding.filter([]);
+			}
+		},
+
+		onMachineConfirm: function (oEvent) {
+			const aContexts = oEvent.getParameter("selectedContexts") || [];
+			if (aContexts.length > 0) {
+				this.getView().getModel("newIP").setProperty("/maschine", aContexts[0].getObject().code);
+			}
+			this._destroyMachineDialog();
+		},
+
+		onMachineCancel: function () {
+			this._destroyMachineDialog();
+		},
+
+		_destroyMachineDialog: function () {
+			if (this._oMachineDialog) {
+				this._oMachineDialog.destroy();
+				this._oMachineDialog = null;
+			}
 		},
 
 		onPressDialogNewInspPointClose: function (oEvent) {
@@ -345,20 +471,19 @@ sap.ui.define([
 
 		onPressDialogNewInspPointConfirm: function (oEvent) {
 			const oDialog = oEvent.getSource().getParent();
-			const aFormContent = oDialog.getContent()[0].getContent();
-			// SimpleForm rendering order: [0] Label, [1] Operation-Select
-			const sOperation = aFormContent[1].getSelectedKey();
 			const oModel = this.getView().getModel();
 			const oCtx = this.getView().getBindingContext();
-			// Usern2 (Prüfart) wird aus dem Lot-Header übernommen
-			const sUsern2 = oCtx.getObject().Usern2;
+			const oNewIP = this.getView().getModel("newIP");
 
-			if (!sOperation) {
-				MessageToast.show(this.getI18nText("selectOperationForNewInspPoint"));
-				return;
-			}
-			if (!sUsern2) {
-				MessageToast.show(this.getI18nText("inspectionTypeRequired"));
+			const sOperation  = oNewIP.getProperty("/operation");
+			const sPruefer    = oNewIP.getProperty("/pruefer");
+			const sMaschine   = oNewIP.getProperty("/maschine");
+			const sNestnummer = oNewIP.getProperty("/nestnummer");
+			const sUsern2     = oNewIP.getProperty("/usern2");
+
+			//All fields are mandatory
+			if (!sOperation || !sPruefer || !sMaschine || !sNestnummer || !sUsern2) {
+				MessageToast.show(this.getI18nText("allFieldsRequired"));
 				return;
 			}
 
@@ -371,11 +496,16 @@ sap.ui.define([
 				urlParameters: {
 					InspectionLot: oCtx.getObject().InspectionLotNumber,
 					InspLotAction: sOperation,
-					Usern2: sUsern2
+					Usern2: sUsern2,
+					Userc1: sPruefer,
+					Userc2: sMaschine,
+					Usern1: sNestnummer
 				},
 				success: (oResult, oResponse) => {
 					oDialog.setBusy(false);
 					oDialog.close();
+					//Remember the entered Prüfer for next time (browser-local suggestions)
+					this._savePrueferHistory(sPruefer);
 					//Success text (incl. the new inspection point number) is owned by the backend
 					//and delivered via the sap-message response header; fall back to the static text.
 					let sMsg;

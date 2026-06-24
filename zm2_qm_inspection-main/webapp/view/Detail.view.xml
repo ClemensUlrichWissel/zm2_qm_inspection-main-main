@@ -24,7 +24,7 @@
 						<ObjectAttribute title="{i18n>batch}" text="{Batch}" visible="{=${Batch} !== ''}"/>
 					</attributes>
 				</ObjectHeader>
-				<VBox class="sapUiMediumMargin" justifyContent="Center" alignItems="End">
+				<!-- <VBox class="sapUiMediumMargin" justifyContent="Center" alignItems="End">
 					<Label text="{i18n>inspectionType}" required="true" labelFor="idInspectionType" class="sapUiTinyMarginBottom"/>
 					<Select id="idInspectionType"
 						selectedKey="{Usern2}"
@@ -33,7 +33,7 @@
 						items="{path: '/InspectionTypeSet', templateShareable: false}">
 						<core:Item key="{Code}" text="{Description}"/>
 					</Select>
-				</VBox>
+				</VBox> -->
 			</HBox>
 			<IconTabBar select="onTabSelect" class="sapUiResponsiveContentPadding">
 				<items>

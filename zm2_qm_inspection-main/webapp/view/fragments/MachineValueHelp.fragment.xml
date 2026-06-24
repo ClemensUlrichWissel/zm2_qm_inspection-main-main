@@ -1,0 +1,24 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<TableSelectDialog
+		title="{i18n>machine}"
+		search="onMachineSearch"
+		liveChange="onMachineSearch"
+		confirm="onMachineConfirm"
+		cancel="onMachineCancel"
+		items="{Machines>/items}">
+		<columns>
+			<Column>
+				<Text text="{i18n>vhValue}"/>
+			</Column>
+			<Column>
+				<Text text="{i18n>vhDescription}"/>
+			</Column>
+		</columns>
+		<ColumnListItem>
+			<cells>
+				<Text text="{Machines>code}"/>
+				<Text text="{Machines>description}"/>
+			</cells>
+		</ColumnListItem>
+	</TableSelectDialog>
+</core:FragmentDefinition>

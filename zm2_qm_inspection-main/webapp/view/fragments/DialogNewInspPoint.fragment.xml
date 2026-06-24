@@ -3,10 +3,28 @@
 		<content>
 			<form:SimpleForm layout="ResponsiveGridLayout" editable="true">
 				<Label text="{i18n>selectOperationForNewInspPoint}" required="true"/>
-				<Select items="{path: 'toOperationsWithInspPoints', filters: [{path: 'ControlKey', operator: 'EQ', value1: 'QM92'}]}" forceSelection="true">
-					<items>
-						<core:Item key="{InspLotAction}" text="{InspLotAction} {ActionText}"/>
-					</items>
+				<Select selectedKey="{newIP>/operation}" forceSelection="false"
+					items="{path: 'toOperationsWithInspPoints', filters: [{path: 'ControlKey', operator: 'EQ', value1: 'QM92'}]}">
+					<core:Item key="{InspLotAction}" text="{InspLotAction} {ActionText}"/>
+				</Select>
+
+				<Label text="{i18n>inspector}" required="true"/>
+				<Input value="{newIP>/pruefer}" showSuggestion="true" suggestionItems="{prueferHist>/recent}">
+					<suggestionItems>
+						<core:Item text="{prueferHist>value}"/>
+					</suggestionItems>
+				</Input>
+
+				<Label text="{i18n>machine}" required="true"/>
+				<Input value="{newIP>/maschine}" showValueHelp="true" valueHelpRequest="onMachineValueHelp"/>
+
+				<Label text="{i18n>nestNumber}" required="true"/>
+				<Input value="{newIP>/nestnummer}"/>
+
+				<Label text="{i18n>inspectionType}" required="true"/>
+				<Select selectedKey="{newIP>/usern2}" forceSelection="false"
+					items="{path: '/InspectionTypeSet', templateShareable: false}">
+					<core:Item key="{Code}" text="{Description}"/>
 				</Select>
 			</form:SimpleForm>
 		</content>
