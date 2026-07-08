@@ -26,10 +26,10 @@
 					<HBox alignItems="Center" class="sapUiTinyMarginBeginEnd" justifyContent="SpaceBetween">
 						<Label text="{ResultNumber}"/>
 						<HBox alignItems="Center">
-							<CheckBox selected="{= ${Code1} === ${i18n>XOK}}"
+							<CheckBox selected="{= !!${Code1} &amp;&amp; ${Code1} === (${OkCode} || ${i18n>XOK})}"
 								text="{i18n>yes}"
 								select="onSelectYesSingleResult"/>
-							<CheckBox selected="{= !!${Code1} &amp;&amp; ${Code1} !== ${i18n>XOK}}"
+							<CheckBox selected="{= !!${Code1} &amp;&amp; ${Code1} !== (${OkCode} || ${i18n>XOK})}"
 								text="{i18n>no}"
 								select="onSelectNoSingleResult"
 								class="sapUiTinyMarginBegin"/>

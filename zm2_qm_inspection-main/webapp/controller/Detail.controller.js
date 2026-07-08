@@ -91,11 +91,23 @@ sap.ui.define([
 			});
 		},
 
+		/**
+		 * Liefert den OK-Code ("Ja") des Merkmals aus dessen Auswahlmenge.
+		 * Kommt als Property OkCode vom Backend (Code mit Bewertung 'A' aus QPAC).
+		 * Fallbacks: Charakteristik-Entität (für single_result-Zeilen), dann der
+		 * bisherige feste i18n-Code (J), solange das Backend OkCode nicht liefert.
+		 */
+		_getOkCode: function (oCtx) {
+			let sOkCode = oCtx.getProperty("OkCode");
+			if (!sOkCode) {
+				sOkCode = this.getView().getModel().getProperty(this._getCharacteristicPath(oCtx) + "/OkCode");
+			}
+			return sOkCode || this.getView().getModel("i18n").getResourceBundle().getText("XOK");
+		},
+
 		onSelectYes: function (oEvent) {
 			const oCtx = oEvent.getSource().getBindingContext();
-			const oResBundle = this.getView().getModel("i18n").getResourceBundle();
-			const sXOK = oResBundle.getText("XOK");
-			const sXNOK = oResBundle.getText("XNOK");
+			const sXOK = this._getOkCode(oCtx);
 			const sCurrent = oCtx.getObject().Code1;
 
 			//Toggle: deselect if already YES, otherwise set to YES
@@ -105,8 +117,7 @@ sap.ui.define([
 
 		onSelectNo: function (oEvent) {
 			const oCtx = oEvent.getSource().getBindingContext();
-			const oResBundle = this.getView().getModel("i18n").getResourceBundle();
-			const sXOK = oResBundle.getText("XOK");
+			const sXOK = this._getOkCode(oCtx);
 			const sCurrent = oCtx.getObject().Code1;
 
 			//"Currently No" = Code1 ist gesetzt und nicht der OK-Code
@@ -142,7 +153,7 @@ sap.ui.define([
 				const oComboBox = oDialog.getContent()[0].getItems()[1];
 				const oItemsBinding = oComboBox.getBinding("items");
 				if (oItemsBinding) {
-					oItemsBinding.attachEventOnce("dataReceived", () => this._preselectSingleDefectCode(oComboBox));
+					oItemsBinding.attachEventOnce("dataReceived", () => this._preselectSingleDefectCode(oComboBox, oDialog));
 				}
 
 				oDialog.open();
@@ -151,12 +162,15 @@ sap.ui.define([
 
 		/**
 		 * Belegt die Fehlerart-ComboBox automatisch vor, wenn der Katalog genau einen Eintrag hat.
+		 * Der einzelne Code wird zusätzlich am Dialog gemerkt, damit er auch bei Abbruch gilt.
 		 * @param {sap.m.ComboBox} oComboBox Die Fehlerart-ComboBox
+		 * @param {sap.m.Dialog} oDialog Der Fehlerart-Dialog
 		 */
-		_preselectSingleDefectCode: function (oComboBox) {
+		_preselectSingleDefectCode: function (oComboBox, oDialog) {
 			const aItems = oComboBox.getItems();
 			if (aItems.length === 1) {
 				oComboBox.setSelectedItem(aItems[0]);
+				oDialog._sSingleDefectCode = aItems[0].getKey();
 			}
 		},
 
@@ -214,15 +228,17 @@ sap.ui.define([
 
 		onDefectCodeCancel: function (oEvent) {
 			const oDialog = oEvent.getSource().getParent();
-			//Auch bei Abbruch als "Nein" bewerten (generischer NOK-Code aus i18n>XNOK).
-			//Sonst bliebe ein zuvor gesetztes "Ja" im Modell stehen und es wären
-			//optisch beide Haken (Ja + Nein) gesetzt.
 			const oTargetCtx = oDialog._oTargetCtx;
-			if (oTargetCtx) {
-				const sXNOK = this.getView().getModel("i18n").getResourceBundle().getText("XNOK");
-				if (sXNOK) {
-					this._setEvaluationCode(oTargetCtx, sXNOK);
-				}
+
+			if (oTargetCtx && oDialog._sSingleDefectCode) {
+				//Genau ein Katalog-Code: Abbruch trotzdem als "Nein" mit diesem Code werten
+				//(entspricht dem bisherigen Verhalten bei J/N-Auswahlmengen). Sonst bliebe
+				//ein zuvor gesetztes "Ja" stehen und beide Haken wären optisch gesetzt.
+				this._setEvaluationCode(oTargetCtx, oDialog._sSingleDefectCode);
+			} else {
+				//Mehrere Codes: Fehlerart nicht ratbar -> Modell unverändert lassen und nur
+				//die durch den Klick optisch gesetzte Nein-Checkbox auf den Modellstand zurücksetzen
+				this.getView().getModel().checkUpdate(true);
 			}
 			oDialog.destroy();
 		},
@@ -266,7 +282,7 @@ sap.ui.define([
 
 		onSelectYesSingleResult: function (oEvent) {
 			const oCtx = oEvent.getSource().getBindingContext();
-			const sXOK = this.getView().getModel("i18n").getResourceBundle().getText("XOK");
+			const sXOK = this._getOkCode(oCtx);
 			const sCurrent = oCtx.getObject().Code1;
 
 			//Toggle: deselect wenn bereits Yes, sonst auf Yes setzen
@@ -276,7 +292,7 @@ sap.ui.define([
 
 		onSelectNoSingleResult: function (oEvent) {
 			const oCtx = oEvent.getSource().getBindingContext();
-			const sXOK = this.getView().getModel("i18n").getResourceBundle().getText("XOK");
+			const sXOK = this._getOkCode(oCtx);
 			const sCurrent = oCtx.getObject().Code1;
 
 			const bCurrentlyNo = !!sCurrent && sCurrent !== sXOK;

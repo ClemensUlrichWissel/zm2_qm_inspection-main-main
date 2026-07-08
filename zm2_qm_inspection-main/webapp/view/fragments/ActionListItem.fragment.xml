@@ -42,11 +42,11 @@
 							</layoutData>
 						</Text>
 						<HBox width="50%" justifyContent="End" alignItems="Center">
-							<CheckBox selected="{= ${Code1} === ${i18n>XOK}}"
+							<CheckBox selected="{= !!${Code1} &amp;&amp; ${Code1} === (${OkCode} || ${i18n>XOK})}"
 								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
 								enabled="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"
 								text="{i18n>yes}" select="onSelectYes"/>
-							<CheckBox selected="{= !!${Code1} &amp;&amp; ${Code1} !== ${i18n>XOK}}"
+							<CheckBox selected="{= !!${Code1} &amp;&amp; ${Code1} !== (${OkCode} || ${i18n>XOK})}"
 								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
 								enabled="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"
 								text="{i18n>no}" select="onSelectNo"/>
