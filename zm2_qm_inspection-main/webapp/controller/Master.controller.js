@@ -4,8 +4,9 @@ sap.ui.define([
 	"sap/ui/model/Filter",
 	"sap/ui/model/FilterOperator",
 	"sap/ui/model/Sorter",
-	"sap/ui/core/Fragment"
-], function (BaseController, JSONModel, Filter, FilterOperator, Sorter, Fragment) {
+	"sap/ui/core/Fragment",
+	"sap/ui/Device"
+], function (BaseController, JSONModel, Filter, FilterOperator, Sorter, Fragment, Device) {
 	"use strict";
 
 	//Order in which active sort fields are applied to the list binding
@@ -284,6 +285,15 @@ sap.ui.define([
 			this.getRouter().navTo("InspectionLotDetail", {
 				LotNumber: sInspectionLot
 			}, true);
+
+			//HideMode: Master-Overlay nach der Auswahl schließen, damit das Prüflos
+			//im Vollbild steht (auf dem Phone navigiert der Router selbst zur Detail-Seite)
+			if (!Device.system.phone) {
+				const oSplitApp = this._getSplitApp();
+				if (oSplitApp) {
+					oSplitApp.hideMaster();
+				}
+			}
 		}
 
 	});

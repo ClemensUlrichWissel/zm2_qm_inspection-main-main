@@ -4,8 +4,7 @@
 		<customHeader>
 			<Bar>
 				<contentLeft>
-					<Button icon="sap-icon://menu2" text="{i18n>titleMasterPage}" type="Transparent" press="onShowMaster"
-						visible="{= ${device>/system/phone} || ${device>/orientation/portrait} }"/>
+					<Button icon="sap-icon://menu2" text="{i18n>titleMasterPage}" type="Transparent" press="onShowMaster"/>
 					<Title text="{i18n>titleDetailPage}" level="H2"/>
 				</contentLeft>
 			</Bar>

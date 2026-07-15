@@ -1,3 +1,5 @@
 <mvc:View controllerName="de.mindsquare.InspectionQM.controller.App" xmlns:mvc="sap.ui.core.mvc" displayBlock="true" xmlns="sap.m">
-	<SplitApp id="splitApp" masterButtonText="{i18n>titleMasterPage}"/>
+	<!-- HideMode: Detail immer im Vollbild, Master-Liste als einblendbares Overlay
+	     (Tablet: Prüflos nach Auswahl in voller Breite anzeigen) -->
+	<SplitApp id="splitApp" mode="HideMode" masterButtonText="{i18n>titleMasterPage}"/>
 </mvc:View>

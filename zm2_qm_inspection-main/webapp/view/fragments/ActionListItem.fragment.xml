@@ -24,7 +24,9 @@
 				<CustomListItem class="sapUiTinyMargin"
 					type="Inactive"
 					highlight="{Highlight}">
-					<HBox alignItems="Center">
+					<!-- wrap="Wrap": bei schmalen Bildschirmen brechen die Erfassungs-Controls
+					     in eine eigene Zeile unter den Merkmalstext um, statt zu überlappen -->
+					<HBox alignItems="Center" wrap="Wrap">
 						<Text text="{parts: [
 							{path: 'InspCharacteristic'},
 							{path: 'MasterCharact'},
@@ -37,11 +39,14 @@
 							{path: 'Scope'}
 						], formatter: '.formatCharacteristicTitle'}">
 							<layoutData>
-								<FlexItemData maxWidth="50%" minWidth="50%"
+								<FlexItemData growFactor="1" minWidth="16rem"
 									styleClass="sapUiSmallMarginBegin"/>
 							</layoutData>
 						</Text>
-						<HBox width="50%" justifyContent="End" alignItems="Center">
+						<HBox justifyContent="End" alignItems="Center" wrap="Wrap">
+							<layoutData>
+								<FlexItemData growFactor="1"/>
+							</layoutData>
 							<CheckBox selected="{= !!${Code1} &amp;&amp; ${Code1} === (${OkCode} || ${i18n>XOK})}"
 								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
 								enabled="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"
@@ -90,9 +95,6 @@
 								class="sapUiSmallMarginBegin"
 								enabled="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"/>
 
-							<Button icon="sap-icon://hint" press="onPressCharacteristic"
-								class="sapUiTinyMarginBegin" tooltip="{i18n>longtext}"/>
-
 							<HBox alignItems="Center" justifyContent="End" width="6.5rem">
 								<Text text="|" class="sapUiTinyMarginBeginEnd"
 									visible="{= ${CharType} !== '01'}"/>
@@ -106,6 +108,10 @@
 							</HBox>
 						</HBox>
 					</HBox>
+					<!-- Langtext einzeilig unter der Kurztext-Zeile (ersetzt den Info-Button) -->
+					<Text text="{CharactLongtext}" maxLines="1"
+						visible="{= !!${CharactLongtext} }"
+						class="sapUiSmallMarginBegin"/>
 				</CustomListItem>
 			</List>
 		</Panel>

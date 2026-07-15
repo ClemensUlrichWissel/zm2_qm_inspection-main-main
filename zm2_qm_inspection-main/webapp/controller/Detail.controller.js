@@ -7,10 +7,8 @@ sap.ui.define([
 	"sap/ui/model/Filter",
 	"sap/ui/model/FilterOperator",
 	"sap/m/MessageBox",
-	"sap/m/MessageToast",
-	"sap/m/Popover",
-	"sap/m/TextArea"
-], function (BaseController, Fragment, Item, DateFormat, JSONModel, Filter, FilterOperator, MessageBox, MessageToast, Popover, TextArea) {
+	"sap/m/MessageToast"
+], function (BaseController, Fragment, Item, DateFormat, JSONModel, Filter, FilterOperator, MessageBox, MessageToast) {
 	"use strict";
 
 	return BaseController.extend("de.mindsquare.InspectionQM.controller.Detail", {
@@ -243,26 +241,6 @@ sap.ui.define([
 			oDialog.destroy();
 		},
 
-		onPressCharacteristic: function (oEvent) {
-			const oPopover = new Popover({
-				placement: "PreferredBottomOrFlip",
-				title: this.getI18nText("longtext"),
-				titleAlignment: "Center",
-				content: [
-					new TextArea({
-						editable: false,
-						value: "{CharactLongtext}",
-						rows: 7,
-						width: "400px"
-					})
-				]
-			});
-
-			oPopover.setModel(this.getView().getModel());
-			oPopover.setBindingContext(oEvent.getSource().getBindingContext());
-			oPopover.openBy(oEvent.getSource());
-		},
-
 		onPressSampleResults: function (oEvent) {
 			const oCtx = oEvent.getSource().getBindingContext();
 
@@ -395,8 +373,30 @@ sap.ui.define([
 				this._oNewIPDialog = oDialog;
 				this.getView().addDependent(oDialog);
 				oDialog.setBindingContext(oCtx);
+
+				//Vorgang vorbelegen, wenn das Prüflos genau einen relevanten (QM92-)Vorgang hat.
+				//toOperationsWithInspPoints lädt asynchron (dataReceived) bzw. kommt aus dem
+				//Client-Cache (nur change) -> beide Events abdecken, Vorbelegung ist idempotent.
+				const oOperationSelect = oDialog.getContent()[0].getContent()[1];
+				const oItemsBinding = oOperationSelect.getBinding("items");
+				if (oItemsBinding) {
+					oItemsBinding.attachEventOnce("dataReceived", () => this._preselectSingleOperation(oOperationSelect));
+					oItemsBinding.attachEventOnce("change", () => this._preselectSingleOperation(oOperationSelect));
+				}
+
 				oDialog.open();
 			});
+		},
+
+		/**
+		 * Belegt den Vorgang im Anlege-Dialog vor, wenn genau ein relevanter Vorgang existiert.
+		 * @param {sap.m.Select} oSelect Das Vorgangs-Select des Anlege-Dialogs
+		 */
+		_preselectSingleOperation: function (oSelect) {
+			const aItems = oSelect.getItems();
+			if (aItems.length === 1) {
+				this.getView().getModel("newIP").setProperty("/operation", aItems[0].getKey());
+			}
 		},
 
 		//--- Prüfer history (browser localStorage) -------------------------------------------------

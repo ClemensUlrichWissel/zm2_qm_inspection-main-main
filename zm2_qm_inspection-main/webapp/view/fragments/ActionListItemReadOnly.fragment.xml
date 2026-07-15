@@ -15,7 +15,9 @@
 			</headerToolbar>
 			<List items="{path: 'toCharacteristics', templateShareable: false}">
 				<CustomListItem class="sapUiTinyMargin" type="Inactive">
-					<HBox alignItems="Center">
+					<!-- wrap="Wrap": bei schmalen Bildschirmen brechen die Controls in eine
+					     eigene Zeile unter den Merkmalstext um, statt zu überlappen -->
+					<HBox alignItems="Center" wrap="Wrap">
 						<Text text="{parts: [
 							{path: 'InspCharacteristic'},
 							{path: 'MasterCharact'},
@@ -28,11 +30,14 @@
 							{path: 'Scope'}
 						], formatter: '.formatCharacteristicTitle'}">
 							<layoutData>
-								<FlexItemData maxWidth="50%" minWidth="50%"
+								<FlexItemData growFactor="1" minWidth="16rem"
 									styleClass="sapUiSmallMarginBegin"/>
 							</layoutData>
 						</Text>
-						<HBox width="50%" justifyContent="End" alignItems="Center">
+						<HBox justifyContent="End" alignItems="Center" wrap="Wrap">
+							<layoutData>
+								<FlexItemData growFactor="1"/>
+							</layoutData>
 							<!-- Übersicht: leere, deaktivierte Felder - nur Typ-Anzeige, keine erfassten Werte -->
 
 							<!-- Qualitativ Scope=1: Ja/Nein -->
@@ -57,11 +62,12 @@
 							<Input placeholder="{i18n>placeholderResult}" enabled="false"
 								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} === '01'}"/>
 
-							<!-- Info/Langtext - rein lesend -->
-							<Button icon="sap-icon://hint" press="onPressCharacteristic"
-								class="sapUiSmallMarginBegin" tooltip="{i18n>longtext}"/>
 						</HBox>
 					</HBox>
+					<!-- Langtext einzeilig unter der Kurztext-Zeile (ersetzt den Info-Button) -->
+					<Text text="{CharactLongtext}" maxLines="1"
+						visible="{= !!${CharactLongtext} }"
+						class="sapUiSmallMarginBegin"/>
 				</CustomListItem>
 			</List>
 		</Panel>

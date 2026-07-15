@@ -1,7 +1,7 @@
 <mvc:View xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" controllerName="de.mindsquare.InspectionQM.controller.Master"
 	xmlns:barcode="sap.ndc" xmlns:html="http://www.w3.org/1999/xhtml">
 	<Page title="{i18n>titleMasterPage}"
-		showNavButton="{= ${device>/system/phone} || ${device>/orientation/portrait} }"
+		showNavButton="true"
 		navButtonPress="onShowDetail">
 		<content>
 			<core:Fragment fragmentName="de.mindsquare.InspectionQM.view.fragments.DialogFilters" type="XML" />
