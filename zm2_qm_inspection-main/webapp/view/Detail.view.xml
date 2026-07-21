@@ -58,8 +58,14 @@
 							<core:Fragment fragmentName="de.mindsquare.InspectionQM.view.fragments.ActionListItem" type="XML"/>
 						</List>
 					</IconTabFilter>
-					<IconTabFilter icon="sap-icon://attachment" design="Horizontal">
+					<IconTabFilter key="attachments" icon="sap-icon://attachment" design="Horizontal">
+						<!-- Hinweis, wenn ein verknüpftes Dokument nicht gelesen werden konnte
+						     (z.B. fehlende DMS-Berechtigung) - Text kommt aus dem sap-message-Header -->
+						<MessageStrip type="Warning" showIcon="true"
+							class="sapUiSmallMargin"
+							visible="{ui>/attachMsg}" text="{ui>/attachMsgText}"/>
 						<upload:UploadSet
+							id="idAttachments"
 							instantUpload="true"
 							showIcons="false"
 							uploadEnabled="true"

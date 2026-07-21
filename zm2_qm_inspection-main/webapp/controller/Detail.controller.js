@@ -16,6 +16,8 @@ sap.ui.define([
 		onInit: function () {
 			this.getRouter().getRoute("InspectionLotDetail").attachMatched(this._onRouteMatched, this);
 			this._bPropertyChangeAttached = false;
+			//UI-Statusmodell (u.a. Hinweis-Strip im Anhänge-Tab)
+			this.getView().setModel(new JSONModel({ attachMsg: false, attachMsgText: "" }), "ui");
 		},
 
 		_onRouteMatched: function (oEvent) {
@@ -788,6 +790,59 @@ sap.ui.define([
 		onUploadCompleted: function (oEvent) {
 			oEvent.getSource().removeAllIncompleteItems();
 			oEvent.getSource().getBinding("items").refresh();
+		},
+
+		onTabSelect: function (oEvent) {
+			if (oEvent.getParameter("key") !== "attachments") {
+				return;
+			}
+			//Anhänge werden bereits mit dem Prüflos geladen. Beim ersten Öffnen des Tabs
+			//den Hinweis-Strip an die Attachment-Bindung koppeln und sofort neu bewerten
+			//(der Ladevorgang ist da meist schon durch).
+			const oBinding = this.byId("idAttachments").getBinding("items");
+			if (oBinding && !this._bAttachMsgHookAttached) {
+				oBinding.attachDataRequested(this._clearAttachmentMessage, this);
+				oBinding.attachDataReceived(this._refreshAttachmentMessage, this);
+				this._bAttachMsgHookAttached = true;
+			}
+			this._refreshAttachmentMessage();
+		},
+
+		//Vor dem (Neu-)Laden der Anhänge alte Dokument-Meldungen entfernen, damit kein
+		//Hinweis aus einem vorher geöffneten Prüflos hängen bleibt.
+		_clearAttachmentMessage: function () {
+			const oMM = sap.ui.getCore().getMessageManager();
+			const aDoc = (oMM.getMessageModel().getData() || []).filter((m) =>
+				/dokument|document/i.test(this._msgText(m)));
+			if (aDoc.length) {
+				oMM.removeMessages(aDoc);
+			}
+			const oUi = this.getView().getModel("ui");
+			oUi.setProperty("/attachMsg", false);
+			oUi.setProperty("/attachMsgText", "");
+		},
+
+		//Zeigt Warn-/Fehlermeldungen aus dem sap-message-Header der Attachment-Ladung
+		//(z.B. "nicht berechtigt für Dokumentart C95") als Strip im Anhänge-Tab.
+		_refreshAttachmentMessage: function () {
+			const aMessages = sap.ui.getCore().getMessageManager().getMessageModel().getData() || [];
+			const aDocMsg = aMessages.filter((m) => {
+				const sType = m.getType ? m.getType() : m.type;
+				return (sType === "Warning" || sType === "Error") && /dokument|document/i.test(this._msgText(m));
+			});
+			const oUi = this.getView().getModel("ui");
+			if (aDocMsg.length) {
+				oUi.setProperty("/attachMsgText", aDocMsg.map((m) => this._msgText(m)).join("\n"));
+				oUi.setProperty("/attachMsg", true);
+			} else {
+				oUi.setProperty("/attachMsg", false);
+				oUi.setProperty("/attachMsgText", "");
+			}
+		},
+
+		//Message-Text robust lesen (Message-Objekt vs. einfaches Datenobjekt)
+		_msgText: function (oMessage) {
+			return (oMessage.getMessage ? oMessage.getMessage() : oMessage.message) || "";
 		},
 
 		onOpenAttachment: function (oEvent) {
