@@ -13,30 +13,38 @@
 						], formatter: '.formatOperationOverviewTitle'}"/>
 				</Toolbar>
 			</headerToolbar>
-			<List items="{path: 'toCharacteristics', templateShareable: false}">
+			<List items="{path: 'toCharacteristics', templateShareable: false}"
+				updateFinished="onCharacteristicsUpdateFinished">
 				<CustomListItem class="sapUiTinyMargin" type="Inactive">
-					<!-- wrap="Wrap": bei schmalen Bildschirmen brechen die Controls in eine
-					     eigene Zeile unter den Merkmalstext um, statt zu überlappen -->
-					<HBox alignItems="Center" wrap="Wrap">
-						<Text text="{parts: [
-							{path: 'InspCharacteristic'},
-							{path: 'MasterCharact'},
-							{path: 'CharactText'},
-							{path: 'TargetVal'},
-							{path: 'UpTolLmt'},
-							{path: 'LwTolLmt'},
-							{path: 'CharType'},
-							{path: 'UnitText'},
-							{path: 'Scope'}
-						], formatter: '.formatCharacteristicTitle'}">
+					<!-- Feste Zwei-Spalten-Zeile: links der Text, rechts die Bedienelemente -->
+					<HBox alignItems="Start">
+						<!-- Textspalte: wächst mit, kann aber schrumpfen (minWidth 0) -> der
+						     (Lang-)Text wird darin abgeschnitten, statt die Spalte aufzublähen -->
+						<VBox>
 							<layoutData>
-								<FlexItemData growFactor="1" minWidth="16rem"
+								<FlexItemData growFactor="3" shrinkFactor="1" minWidth="0"
 									styleClass="sapUiSmallMarginBegin"/>
 							</layoutData>
-						</Text>
+							<Text width="100%" text="{parts: [
+								{path: 'InspCharacteristic'},
+								{path: 'MasterCharact'},
+								{path: 'CharactText'},
+								{path: 'TargetVal'},
+								{path: 'UpTolLmt'},
+								{path: 'LwTolLmt'},
+								{path: 'CharType'},
+								{path: 'UnitText'},
+								{path: 'Scope'}
+							], formatter: '.formatCharacteristicTitle'}"/>
+							<Text width="100%" maxLines="1"
+								text="{path: 'CharactLongtext', formatter: '.formatLongtext'}"
+								visible="{= !!${CharactLongtext} }"/>
+							<Link text="{i18n>showMore}" press="onToggleLongtext" visible="false"/>
+						</VBox>
+						<!-- Bedienelemente: shrinkFactor 0 -> nie zusammengedrückt -->
 						<HBox justifyContent="End" alignItems="Center" wrap="Wrap">
 							<layoutData>
-								<FlexItemData growFactor="1"/>
+								<FlexItemData growFactor="1" shrinkFactor="0" minWidth="14rem"/>
 							</layoutData>
 							<!-- Übersicht: leere, deaktivierte Felder - nur Typ-Anzeige, keine erfassten Werte -->
 
@@ -48,10 +56,10 @@
 								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
 								text="{i18n>no}"/>
 
-							<!-- Aggregat-Inputs Scope>1 ohne single_res -->
-							<Input placeholder="{i18n>placeholderTotal}" enabled="false"
+							<!-- Aggregat-Inputs Scope>1 ohne single_res (feste Breiten wie in der Erfassung) -->
+							<Input placeholder="{i18n>placeholderTotal}" enabled="false" width="6rem"
 								visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} !== '01' &amp;&amp; !${SingleRes}}"/>
-							<Input placeholder="{i18n>placeholderFailed}" enabled="false"
+							<Input placeholder="{i18n>placeholderFailed}" enabled="false" width="6rem"
 								visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} !== '01' &amp;&amp; !${SingleRes}}">
 								<layoutData>
 									<FlexItemData styleClass="sapUiTinyMarginBegin"/>
@@ -59,15 +67,11 @@
 							</Input>
 
 							<!-- Quantitativ Einzelwert Scope=1 -->
-							<Input placeholder="{i18n>placeholderResult}" enabled="false"
+							<Input placeholder="{i18n>placeholderResult}" enabled="false" width="6.5rem"
 								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} === '01'}"/>
 
 						</HBox>
 					</HBox>
-					<!-- Langtext einzeilig unter der Kurztext-Zeile (ersetzt den Info-Button) -->
-					<Text text="{CharactLongtext}" maxLines="1"
-						visible="{= !!${CharactLongtext} }"
-						class="sapUiSmallMarginBegin"/>
 				</CustomListItem>
 			</List>
 		</Panel>

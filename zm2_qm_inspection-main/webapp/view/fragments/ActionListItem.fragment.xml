@@ -16,36 +16,51 @@
 							{path: 'Usert1'}
 						], formatter: '.formatOperationTitle'}"/>
 					<ToolbarSpacer/>
+					<!-- Rechter Abstand wie bei den Merkmalszeilen, damit der Abschließen-Button
+					     bündig über den Annehmen/Ablehnen-Buttons steht -->
 					<Button type="Emphasized" icon="sap-icon://locked" press="onCloseOperation" tooltip="{i18n>close}"
+						class="sapUiSmallMarginEnd"
 						enabled="{= ${ControlKey} === 'QM92'}"/>
 				</Toolbar>
 			</headerToolbar>
-			<List items="{path: 'toCharacteristics', templateShareable: false}">
+			<List items="{path: 'toCharacteristics', templateShareable: false}"
+				updateFinished="onCharacteristicsUpdateFinished">
 				<CustomListItem class="sapUiTinyMargin"
 					type="Inactive"
 					highlight="{Highlight}">
-					<!-- wrap="Wrap": bei schmalen Bildschirmen brechen die Erfassungs-Controls
-					     in eine eigene Zeile unter den Merkmalstext um, statt zu überlappen -->
-					<HBox alignItems="Center" wrap="Wrap">
-						<Text text="{parts: [
-							{path: 'InspCharacteristic'},
-							{path: 'MasterCharact'},
-							{path: 'CharactText'},
-							{path: 'TargetVal'},
-							{path: 'UpTolLmt'},
-							{path: 'LwTolLmt'},
-							{path: 'CharType'},
-							{path: 'UnitText'},
-							{path: 'Scope'}
-						], formatter: '.formatCharacteristicTitle'}">
+					<!-- Feste Zwei-Spalten-Zeile: links der Text, rechts die Bedienelemente.
+					     Kein wrap - die Spalten bleiben immer nebeneinander -->
+					<HBox alignItems="Start">
+						<!-- Textspalte: wächst mit, kann aber schrumpfen (minWidth 0) -> der
+						     (Lang-)Text wird darin abgeschnitten, statt die Spalte aufzublähen -->
+						<VBox>
 							<layoutData>
-								<FlexItemData growFactor="1" minWidth="16rem"
+								<FlexItemData growFactor="3" shrinkFactor="1" minWidth="0"
 									styleClass="sapUiSmallMarginBegin"/>
 							</layoutData>
-						</Text>
+							<Text width="100%" text="{parts: [
+								{path: 'InspCharacteristic'},
+								{path: 'MasterCharact'},
+								{path: 'CharactText'},
+								{path: 'TargetVal'},
+								{path: 'UpTolLmt'},
+								{path: 'LwTolLmt'},
+								{path: 'CharType'},
+								{path: 'UnitText'},
+								{path: 'Scope'}
+							], formatter: '.formatCharacteristicTitle'}"/>
+							<!-- Langtext eingeklappt auf 1 Zeile; "Mehr anzeigen" blendet der
+							     Controller nur ein, wenn der Text wirklich abgeschnitten ist -->
+							<Text width="100%" maxLines="1"
+								text="{path: 'CharactLongtext', formatter: '.formatLongtext'}"
+								visible="{= !!${CharactLongtext} }"/>
+							<Link text="{i18n>showMore}" press="onToggleLongtext" visible="false"/>
+						</VBox>
+						<!-- Bedienelemente: shrinkFactor 0 -> nie zusammengedrückt; minWidth sorgt
+						     dafür, dass sie erst auf sehr schmalen Bildschirmen umbrechen -->
 						<HBox justifyContent="End" alignItems="Center" wrap="Wrap">
 							<layoutData>
-								<FlexItemData growFactor="1"/>
+								<FlexItemData growFactor="1" shrinkFactor="0" minWidth="14rem"/>
 							</layoutData>
 							<CheckBox selected="{= !!${Code1} &amp;&amp; ${Code1} === (${OkCode} || ${i18n>XOK})}"
 								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} !== '01'}"
@@ -56,12 +71,13 @@
 								enabled="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"
 								text="{i18n>no}" select="onSelectNo"/>
 
-							<!-- Aggregat-Inputs nur für qualitative Scope>1 OHNE single_res (also sample_res/char_res) -->
-							<Input placeholder="{i18n>placeholderTotal}"
+							<!-- Aggregat-Inputs nur für qualitative Scope>1 OHNE single_res (also sample_res/char_res).
+							     Feste Breiten, damit die Eingabezeilen nicht breiter werden als die übrigen Zeilen -->
+							<Input placeholder="{i18n>placeholderTotal}" width="6rem"
 								visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} !== '01' &amp;&amp; !${SingleRes}}"
 								value="{ValidVals}"
 								editable="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}"/>
-							<Input placeholder="{i18n>placeholderFailed}"
+							<Input placeholder="{i18n>placeholderFailed}" width="6rem"
 								visible="{= ${Scope} > '0000001' &amp;&amp; ${CharType} !== '01' &amp;&amp; !${SingleRes}}"
 								value="{Nonconf}"
 								editable="{parts: [{path: 'Skipped'},{path: 'Closed'},{path: 'InspLotAction'},{path: 'InspectionLot'},{path: 'InspSample'}], formatter: '.isCharEditable'}">
@@ -70,7 +86,7 @@
 								</layoutData>
 							</Input>
 
-							<Input placeholder="{i18n>placeholderResult}"
+							<Input placeholder="{i18n>placeholderResult}" width="6.5rem"
 								visible="{= ${Scope} === '0000001' &amp;&amp; ${CharType} === '01'}"
 								value="{ResValue}"
 								valueState="{parts: [{path: 'ResValue'},{path: 'LwTolLmt'},{path: 'UpTolLmt'}], formatter: '.formatValueState'}"
@@ -108,10 +124,6 @@
 							</HBox>
 						</HBox>
 					</HBox>
-					<!-- Langtext einzeilig unter der Kurztext-Zeile (ersetzt den Info-Button) -->
-					<Text text="{CharactLongtext}" maxLines="1"
-						visible="{= !!${CharactLongtext} }"
-						class="sapUiSmallMarginBegin"/>
 				</CustomListItem>
 			</List>
 		</Panel>

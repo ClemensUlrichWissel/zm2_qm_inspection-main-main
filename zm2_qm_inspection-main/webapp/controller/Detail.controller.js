@@ -7,8 +7,9 @@ sap.ui.define([
 	"sap/ui/model/Filter",
 	"sap/ui/model/FilterOperator",
 	"sap/m/MessageBox",
-	"sap/m/MessageToast"
-], function (BaseController, Fragment, Item, DateFormat, JSONModel, Filter, FilterOperator, MessageBox, MessageToast) {
+	"sap/m/MessageToast",
+	"sap/ui/Device"
+], function (BaseController, Fragment, Item, DateFormat, JSONModel, Filter, FilterOperator, MessageBox, MessageToast, Device) {
 	"use strict";
 
 	return BaseController.extend("de.mindsquare.InspectionQM.controller.Detail", {
@@ -18,6 +19,14 @@ sap.ui.define([
 			this._bPropertyChangeAttached = false;
 			//UI-Statusmodell (u.a. Hinweis-Strip im Anhänge-Tab)
 			this.getView().setModel(new JSONModel({ attachMsg: false, attachMsgText: "" }), "ui");
+
+			//Merkmalslisten, deren Langtext-Umschalter bei Größenänderung neu bewertet werden müssen
+			this._aCharLists = [];
+			Device.resize.attachHandler(this._onAppResize, this);
+		},
+
+		onExit: function () {
+			Device.resize.detachHandler(this._onAppResize, this);
 		},
 
 		_onRouteMatched: function (oEvent) {
@@ -790,6 +799,79 @@ sap.ui.define([
 		onUploadCompleted: function (oEvent) {
 			oEvent.getSource().removeAllIncompleteItems();
 			oEvent.getSource().getBinding("items").refresh();
+		},
+
+		//--- Langtext: einzeilig anzeigen, "Mehr anzeigen" nur bei echtem Abschneiden -----------
+
+		/**
+		 * Der Langtext kommt als zusammengesetzter SAPscript-String und enthält je Zeile
+		 * mehrere Umbruch-/Steuerzeichen (CR+LF, teils doppelt). Ohne Normalisierung
+		 * entsteht nach jeder Zeile eine Leerzeile.
+		 */
+		formatLongtext: function (sText) {
+			if (!sText) {
+				return "";
+			}
+			return sText
+				.replace(/\r\n?/g, "\n")        //CR bzw. CRLF -> LF
+				.replace(/[^\S\n]*\n[^\S\n]*/g, "\n")  //Leerraum um Umbrüche entfernen
+				.replace(/\n{2,}/g, "\n")       //Leerzeilen zusammenfassen
+				.replace(/^\n+|\n+$/g, "");     //Umbrüche am Anfang/Ende abschneiden
+		},
+
+		onCharacteristicsUpdateFinished: function (oEvent) {
+			const oList = oEvent.getSource();
+			if (this._aCharLists.indexOf(oList) === -1) {
+				this._aCharLists.push(oList);
+			}
+			//Erst nach dem Rendern messen - vorher stehen die DOM-Maße noch nicht fest
+			setTimeout(() => this._updateLongtextToggles(oList), 0);
+		},
+
+		_onAppResize: function () {
+			//Spaltenbreite ändert sich (z.B. Tablet-Drehung) -> Abschneiden neu bewerten
+			this._aCharLists = this._aCharLists.filter((oList) => oList && oList.getDomRef && oList.getDomRef());
+			this._aCharLists.forEach((oList) => this._updateLongtextToggles(oList));
+		},
+
+		_updateLongtextToggles: function (oList) {
+			oList.getItems().forEach((oItem) => {
+				const oParts = this._getLongtextParts(oItem);
+				//Nur im eingeklappten Zustand messen; aufgeklappt bleibt der Link sichtbar
+				if (!oParts || oParts.text.getMaxLines() !== 1) {
+					return;
+				}
+				const oDom = oParts.text.getDomRef();
+				if (!oDom) {
+					return;
+				}
+				const bTruncated = oDom.scrollHeight > oDom.clientHeight + 1
+					|| oDom.scrollWidth > oDom.clientWidth + 1;
+				oParts.link.setVisible(bTruncated);
+			});
+		},
+
+		//Zeilenaufbau: CustomListItem > HBox > VBox [Kurztext, Langtext, Link]
+		_getLongtextParts: function (oItem) {
+			const oOuter = oItem.getContent ? oItem.getContent()[0] : null;
+			const oBox = oOuter && oOuter.getItems ? oOuter.getItems()[0] : null;
+			const aItems = oBox && oBox.getItems ? oBox.getItems() : [];
+			const oText = aItems[1];
+			const oLink = aItems[2];
+			if (!oText || !oLink || !oText.getMaxLines || !oLink.setVisible) {
+				return null;
+			}
+			return { text: oText, link: oLink };
+		},
+
+		onToggleLongtext: function (oEvent) {
+			const oLink = oEvent.getSource();
+			const oText = oLink.getParent().getItems()[1];
+			const bExpanded = oText.getMaxLines() === 0;
+
+			//maxLines 0 = unbegrenzt, 1 = auf eine Zeile gekürzt
+			oText.setMaxLines(bExpanded ? 1 : 0);
+			oLink.setText(this.getI18nText(bExpanded ? "showMore" : "showLess"));
 		},
 
 		onTabSelect: function (oEvent) {
