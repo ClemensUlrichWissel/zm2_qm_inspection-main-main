@@ -874,8 +874,33 @@ sap.ui.define([
 			oLink.setText(this.getI18nText(bExpanded ? "showMore" : "showLess"));
 		},
 
+		//Items-Bindung einer Liste per Control-ID neu vom Server laden (falls vorhanden)
+		_refreshListBinding: function (sId) {
+			const oCtrl = this.byId(sId);
+			const oBinding = oCtrl && oCtrl.getBinding("items");
+			if (oBinding) {
+				oBinding.refresh(true);
+			}
+		},
+
 		onTabSelect: function (oEvent) {
-			if (oEvent.getParameter("key") !== "attachments") {
+			const sKey = oEvent.getParameter("key");
+
+			if (sKey === "all") {
+				//Historie öffnen: nur die Historie-Liste neu laden, damit ein gerade
+				//abgeschlossener Prüfpunkt hier erscheint (ohne F5). Die "offen"-Liste
+				//bleibt bewusst unverändert.
+				this._refreshListBinding("idMainList");
+				return;
+			}
+
+			if (sKey === "operations") {
+				//Vorgänge-Übersicht bei jedem Öffnen frisch laden
+				this._refreshListBinding("idOperationsList");
+				return;
+			}
+
+			if (sKey !== "attachments") {
 				return;
 			}
 			//Anhänge werden bereits mit dem Prüflos geladen. Beim ersten Öffnen des Tabs
